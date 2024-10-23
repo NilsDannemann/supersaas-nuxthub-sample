@@ -38,14 +38,14 @@ const props = defineProps({
   },
   activeVariantId: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 
 const formatPrice = price => {
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "EUR",
   });
   return formatter.format(price / 100);
 };
