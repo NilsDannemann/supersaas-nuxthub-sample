@@ -38,7 +38,7 @@ const props = defineProps({
   },
   activeVariantId: {
     type: String,
-    required: false,
+    required: true,
   },
 });
 
