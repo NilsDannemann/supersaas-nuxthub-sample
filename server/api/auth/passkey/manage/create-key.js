@@ -22,7 +22,7 @@ export default defineEventHandler(async event => {
 
   const options = {
     challenge,
-    rpName: "KiwiQuest",
+    rpName: "Supersaas",
     rpID: expectedRPID,
     userId: userIdUnit8Array,
     userName: email,

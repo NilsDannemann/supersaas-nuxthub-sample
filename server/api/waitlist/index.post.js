@@ -5,8 +5,6 @@ export default defineEventHandler(async event => {
   const { email } = await readValidatedBody(event, body =>
     emailVerificationSchema.parse(body),
   );
-  
-  const record = await waitlistActions.addEmail({ email }, userId);
-  
+  const record = await waitlistActions.addEmail({ email });
   return record;
 });

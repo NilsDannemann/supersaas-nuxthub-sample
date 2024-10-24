@@ -1,7 +1,7 @@
 <template>
   <main class="flex flex-col items-center justify-center h-screen">
     <div class="w-full max-w-sm mx-auto space-y-4">
-      <img src="/logo.png" alt="KiwiQuest" class="h-8 w-auto" />
+      <img src="/logo.png" alt="Microbot" class="h-8 w-auto" />
       <h1 class="font-semibold text-2xl">Set up a new password</h1>
       <p class="text-sm">
         Your password must be different from your previous one.

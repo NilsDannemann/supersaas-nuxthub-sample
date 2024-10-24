@@ -1,7 +1,7 @@
 <template>
   <UContainer class="py-8">
     <div class="flex items-center gap-4 justify-between p-2">
-      <div class="ml-2 font-semibold">KiwiQuest</div>
+      <div class="ml-2 font-semibold">Supersaas</div>
       <span class="flex-1" />
       <UButton color="black" :to="loggedIn ? '/dashboard' : '/auth/login'">
         {{ loggedIn ? "Dashboard" : "Login" }}

@@ -32,6 +32,7 @@ export const users = sqliteTable("users", {
     .notNull()
     .default(false),
   role: text("role").notNull().default(UserRole.USER),
+  name: text("name").notNull(),
   avatarUrl: text("avatarUrl"),
   hashedPassword: text("hashedPassword"),
   banned: integer("banned", { mode: "boolean" }).notNull().default(false),

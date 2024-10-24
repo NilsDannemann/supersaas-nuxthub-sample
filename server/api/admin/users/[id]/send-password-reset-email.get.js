@@ -3,7 +3,7 @@ import { generateResetPasswordToken } from "~~/server/utils/auth";
 import { useEmail } from "~~/server/services/email";
 const { fromEmail, emailProvider } = useRuntimeConfig();
 const { baseUrl } = useRuntimeConfig().public;
-const SUBJECT = "KiwiQuest Essentials - Reset Password";
+const SUBJECT = "Supersaas Essentials - Reset Password";
 
 async function sendPasswordResetEmail(email, resetPasswordToken) {
   const emailOptions = {

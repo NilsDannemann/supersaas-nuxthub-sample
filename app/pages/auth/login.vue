@@ -1,7 +1,7 @@
 <template>
   <main class="flex flex-col items-center justify-center h-screen">
     <div class="w-full max-w-sm mx-auto space-y-6">
-      <img src="/logo.png" alt="KiwiQuest" class="h-8 w-auto" />
+      <img src="/logo.png" alt="Microbot" class="h-8 w-auto" />
       <h1 class="font-semibold text-2xl">Login</h1>
       <p class="text-sm">
         Enter your email and password to login to your account

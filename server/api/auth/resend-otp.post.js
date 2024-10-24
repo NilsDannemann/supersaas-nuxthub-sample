@@ -27,7 +27,7 @@ async function sendOtpEmail(email, oneTimePassword, emailVerificationCode) {
     const emailOptions = {
       to: email,
       from: fromEmail,
-      subject: "KiwiQuest - Login with OTP",
+      subject: "Supersaas - Login with OTP",
       html,
     };
     await useEmail(emailProvider).send(emailOptions);
