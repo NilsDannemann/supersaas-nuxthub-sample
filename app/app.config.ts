@@ -7,7 +7,7 @@ export default defineAppConfig({
     },
   },
   seo: {
-    title: "Supersaas Nuxthub - Fullstack SaaS Starter Kit with Nuxthub",
-    description: "Modern fullstack web templates, starter kits & freebies.",
+    title: "KiwiQuest - Apps",
+    description: "Start your adventure in New Zealand.",
   },
 });

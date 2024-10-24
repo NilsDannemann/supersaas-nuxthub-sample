@@ -50,7 +50,7 @@ async function sendVerificationEmail(
     const emailOptions = {
       to: email,
       from: fromEmail,
-      subject: "Supersaas - Signup",
+      subject: "KiwiQuest - Signup",
       html,
     };
     await useEmail(emailProvider).send(emailOptions);

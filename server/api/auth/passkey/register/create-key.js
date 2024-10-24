@@ -21,7 +21,7 @@ export default defineEventHandler(async event => {
 
   const options = {
     challenge,
-    rpName: "Supersaas",
+    rpName: "KiwiQuest",
     rpID: expectedRPID,
     userId: userIdUnit8Array,
     userName: email,
