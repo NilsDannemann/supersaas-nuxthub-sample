@@ -27,18 +27,22 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    if (!response || !response.dealGroups) {
+      throw new Error("Invalid response from ActiveCampaign API");
+    }
+
     // Extract the base URL from the activeCampaignAccountURL
     const baseUrl = apiKeys.activeCampaignAccountURL.split('://')[1].split('.')[0];
 
     return {
-      ...response,
+      dealGroups: response.dealGroups,
       baseUrl,
     };
   } catch (error) {
     console.error("Failed to fetch pipelines:", error);
     throw createError({
       statusCode: 500,
-      message: "Failed to fetch pipelines",
+      message: `Failed to fetch pipelines: ${error.message}`,
     });
   }
 });
