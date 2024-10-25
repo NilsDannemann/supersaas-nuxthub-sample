@@ -113,7 +113,14 @@ const getPipelineUrl = (pipelineId) => {
 };
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  // Assuming the value from the API is in cents
+  const dollars = value / 100;
+  return new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(dollars);
 };
 
 const changePage = async (newPage) => {
