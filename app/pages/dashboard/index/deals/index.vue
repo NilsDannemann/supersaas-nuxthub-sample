@@ -25,16 +25,14 @@
             {{ row.dealCount }}
           </template>
           <template #actions-data="{ row }">
-            <UButton
-              color="gray"
-              variant="ghost"
-              size="xs"
+            <NuxtLink
               :to="getPipelineUrl(row.id)"
               target="_blank"
               rel="noopener noreferrer"
+              class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
             >
               View
-            </UButton>
+            </NuxtLink>
           </template>
         </UTable>
         <div v-if="pipelines.length > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
