@@ -10,7 +10,11 @@
       <h2 class="text-xl font-semibold mb-4">Pipelines</h2>
       <div v-if="pipelines.length === 0">No pipelines found.</div>
       <div v-else class="border border-gray-200 dark:border-white/10 rounded-lg mb-8">
-        <UTable :rows="paginatedPipelines" :columns="pipelineColumns">
+        <UTable 
+          :rows="paginatedPipelines" 
+          :columns="pipelineColumns"
+          :loading="pipelinesLoading"
+        >
           <template #title-data="{ row }">
             {{ row.title }}
           </template>
@@ -49,7 +53,11 @@
       <h2 class="text-xl font-semibold mb-4">Deals</h2>
       <div v-if="deals.length === 0">No deals found.</div>
       <div v-else class="border border-gray-200 dark:border-white/10 rounded-lg">
-        <UTable :rows="paginatedDeals" :columns="dealColumns">
+        <UTable 
+          :rows="paginatedDeals" 
+          :columns="dealColumns"
+          :loading="dealsLoading"
+        >
           <template #title-data="{ row }">
             {{ row.title }}
           </template>
@@ -71,6 +79,15 @@
             v-model="dealPage"
             :page-count="dealTotalPages"
             :total="totalItems"
+            :ui="{
+              wrapper: 'flex items-center gap-1',
+              button: {
+                icon: 'w-4 h-4',
+                base: 'disabled:opacity-50 disabled:cursor-not-allowed',
+                padding: 'p-1',
+                size: 'sm'
+              }
+            }"
           />
         </div>
       </div>
@@ -90,6 +107,9 @@ const pipelinePage = ref(1);
 const dealPage = ref(1);
 const itemsPerPage = 10;
 const totalItems = ref(0);
+
+const pipelinesLoading = ref(false);
+const dealsLoading = ref(false);
 
 const pipelineColumns = [
   { key: 'title', label: 'Pipeline' },
@@ -153,17 +173,22 @@ const formatCurrency = (value, currency) => {
 
 watch(dealPage, async () => {
   try {
+    dealsLoading.value = true;
     await refreshDeals();
   } catch (err) {
     console.error("Failed to refresh deals:", err);
     error.value = "Failed to refresh deals";
     errorDetails.value = err.message;
+  } finally {
+    dealsLoading.value = false;
   }
 });
 
 onMounted(async () => {
   try {
     loading.value = true;
+    pipelinesLoading.value = true;
+    dealsLoading.value = true;
     await Promise.all([refreshPipelines(), refreshDeals()]);
   } catch (err) {
     console.error("Failed to fetch data:", err);
@@ -171,6 +196,8 @@ onMounted(async () => {
     errorDetails.value = err.message;
   } finally {
     loading.value = false;
+    pipelinesLoading.value = false;
+    dealsLoading.value = false;
   }
 });
 </script>
