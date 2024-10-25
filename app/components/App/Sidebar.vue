@@ -81,6 +81,13 @@ const links = [
     click: () => (mobileSidebar.value = false),
   },
   {
+    label: "Deals",
+    icon: "i-ph-handshake-duotone",
+    to: "/dashboard/deals",
+    badge: "New",
+    click: () => (mobileSidebar.value = false),
+  },
+  {
     label: "Posts",
     to: "/dashboard/posts",
     icon: "i-ph-note-duotone",
