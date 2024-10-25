@@ -37,7 +37,7 @@
             </UButton>
           </template>
         </UTable>
-        <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+        <div v-if="pipelines.length > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
           <div class="text-sm text-gray-500 dark:text-gray-400">
             Showing {{ pipelinePageFrom }} to {{ pipelinePageTo }} of {{ pipelines.length }} results
           </div>
@@ -71,7 +71,7 @@
             {{ row.status }}
           </template>
         </UTable>
-        <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+        <div v-if="totalItems > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
           <div class="text-sm text-gray-500 dark:text-gray-400">
             Showing {{ dealPageFrom }} to {{ dealPageTo }} of {{ totalItems }} results
           </div>
@@ -88,6 +88,7 @@
                 size: 'sm'
               }
             }"
+            :max-visible-pages="5"
           />
         </div>
       </div>
@@ -105,8 +106,8 @@ const pipelines = ref([]);
 const deals = ref([]);
 const pipelinePage = ref(1);
 const dealPage = ref(1);
-const itemsPerPage = 10;
-const totalItems = ref(0);
+const itemsPerPage = 50;
+const totalItems = ref(0); // Add this line
 
 const pipelinesLoading = ref(false);
 const dealsLoading = ref(false);
@@ -126,7 +127,10 @@ const dealColumns = [
 ];
 
 const { data: pipelinesData, pending: pipelinesPending, error: pipelinesError, refresh: refreshPipelines } = await useFetch('/api/deals/pipelines', { lazy: true });
-const { data: dealsData, pending: dealsPending, error: dealsError, refresh: refreshDeals } = await useFetch(() => `/api/deals?limit=${itemsPerPage}&offset=${(dealPage.value - 1) * itemsPerPage}`, { lazy: true });
+const { data: dealsData, pending: dealsPending, error: dealsError, refresh: refreshDeals } = await useFetch(() => `/api/deals?limit=${itemsPerPage}&offset=${(dealPage.value - 1) * itemsPerPage}`, { 
+  lazy: true,
+  watch: [dealPage] // This will trigger a refetch when dealPage changes
+});
 
 watch([pipelinesData, dealsData], ([newPipelinesData, newDealsData]) => {
   if (newPipelinesData) {
@@ -139,12 +143,20 @@ watch([pipelinesData, dealsData], ([newPipelinesData, newDealsData]) => {
 }, { immediate: true });
 
 const paginatedPipelines = computed(() => {
+  if (pipelines.value.length <= itemsPerPage) {
+    return pipelines.value;
+  }
   const start = (pipelinePage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return pipelines.value.slice(start, end);
 });
 
-const paginatedDeals = computed(() => deals.value);
+const paginatedDeals = computed(() => {
+  if (deals.value.length <= itemsPerPage) {
+    return deals.value;
+  }
+  return deals.value;
+});
 
 const pipelineTotalPages = computed(() => Math.ceil(pipelines.value.length / itemsPerPage));
 const dealTotalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage));
