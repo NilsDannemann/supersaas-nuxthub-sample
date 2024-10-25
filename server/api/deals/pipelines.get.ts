@@ -27,7 +27,13 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    return response;
+    // Extract the base URL from the activeCampaignAccountURL
+    const baseUrl = apiKeys.activeCampaignAccountURL.split('://')[1].split('.')[0];
+
+    return {
+      ...response,
+      baseUrl,
+    };
   } catch (error) {
     console.error("Failed to fetch pipelines:", error);
     throw createError({

@@ -3,24 +3,30 @@
     <div v-if="loading">Loading pipelines...</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else-if="pipelines.length === 0">No pipelines found.</div>
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <UCard v-for="pipeline in pipelines" :key="pipeline.id" class="p-4">
-        <template #header>
-          <h3 class="text-lg font-semibold">{{ pipeline.title }}</h3>
+    <div v-else class="border border-gray-200 dark:border-white/10 rounded-lg">
+      <UTable :rows="pipelines" :columns="columns">
+        <template #title-data="{ row }">
+          {{ row.title }}
         </template>
-        <p class="text-sm text-gray-500">Currency: {{ pipeline.currency }}</p>
-        <p class="text-sm text-gray-500">Stages: {{ pipeline.stages.length }}</p>
-        <template #footer>
+        <template #currency-data="{ row }">
+          {{ row.currency }}
+        </template>
+        <template #stages-data="{ row }">
+          {{ row.stages.length }}
+        </template>
+        <template #actions-data="{ row }">
           <UButton
-            color="primary"
-            variant="soft"
-            size="sm"
-            :to="`/dashboard/deals/${pipeline.id}`"
+            color="gray"
+            variant="ghost"
+            size="xs"
+            :to="getPipelineUrl(row.id)"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            View Details
+            View
           </UButton>
         </template>
-      </UCard>
+      </UTable>
     </div>
     <div v-if="!loading && !error && pipelines.length === 0" class="mt-4">
       <p class="text-gray-500">
@@ -44,6 +50,18 @@ const { data: pipelinesData, pending, error } = await useFetch('/api/deals/pipel
 
 const loading = ref(pending);
 const pipelines = computed(() => pipelinesData.value?.dealGroups || []);
+
+const columns = [
+  { key: 'title', label: 'Pipeline' },
+  { key: 'currency', label: 'Currency' },
+  { key: 'stages', label: 'Stages' },
+  { key: 'actions', label: 'Actions' },
+];
+
+const getPipelineUrl = (pipelineId) => {
+  const baseUrl = pipelinesData.value?.baseUrl || '';
+  return `https://${baseUrl}.activehosted.com/app/deals?pipeline=${pipelineId}`;
+};
 
 onMounted(async () => {
   try {
