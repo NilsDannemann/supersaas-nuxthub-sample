@@ -20,22 +20,41 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const response = await $fetch(`${apiKeys.activeCampaignAccountURL}/api/3/dealGroups`, {
+    const pipelinesResponse = await $fetch(`${apiKeys.activeCampaignAccountURL}/api/3/dealGroups`, {
       method: 'GET',
       headers: {
         'Api-Token': apiKeys.activeCampaignAccountKey,
       },
     });
 
-    if (!response || !response.dealGroups) {
+    if (!pipelinesResponse || !pipelinesResponse.dealGroups) {
       throw new Error("Invalid response from ActiveCampaign API");
     }
+
+    // Fetch deal counts for each pipeline
+    const dealCountsPromises = pipelinesResponse.dealGroups.map(async (pipeline) => {
+      const dealsResponse = await $fetch(`${apiKeys.activeCampaignAccountURL}/api/3/deals?filters[group]=${pipeline.id}&limit=1`, {
+        method: 'GET',
+        headers: {
+          'Api-Token': apiKeys.activeCampaignAccountKey,
+        },
+      });
+      return { pipelineId: pipeline.id, count: dealsResponse.meta.total };
+    });
+
+    const dealCounts = await Promise.all(dealCountsPromises);
+
+    // Add deal counts to pipeline data
+    const pipelinesWithCounts = pipelinesResponse.dealGroups.map(pipeline => ({
+      ...pipeline,
+      dealCount: dealCounts.find(count => count.pipelineId === pipeline.id)?.count || 0
+    }));
 
     // Extract the base URL from the activeCampaignAccountURL
     const baseUrl = apiKeys.activeCampaignAccountURL.split('://')[1].split('.')[0];
 
     return {
-      dealGroups: response.dealGroups,
+      dealGroups: pipelinesWithCounts,
       baseUrl,
     };
   } catch (error) {
