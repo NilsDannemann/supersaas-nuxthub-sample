@@ -313,6 +313,45 @@ class UserActions {
       throw new Error("Failed to unlink account");
     }
   }
+
+  async findApiKeysByUserId(userId) {
+    try {
+      const [apiKey] = await useDB()
+        .select()
+        .from(tables.apiKeys)
+        .where(eq(tables.apiKeys.userId, userId));
+      return apiKey || null;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to find API keys");
+    }
+  }
+
+  async updateApiKeys(userId, apiKeyData) {
+    try {
+      const existingApiKeys = await this.findApiKeysByUserId(userId);
+
+      if (existingApiKeys) {
+        await useDB()
+          .update(tables.apiKeys)
+          .set({
+            activeCampaignAccountURL: apiKeyData.activeCampaignAccountURL,
+            activeCampaignAccountKey: apiKeyData.activeCampaignAccountKey,
+            updatedAt: new Date(),
+          })
+          .where(eq(tables.apiKeys.userId, userId));
+      } else {
+        await useDB().insert(tables.apiKeys).values({
+          userId,
+          activeCampaignAccountURL: apiKeyData.activeCampaignAccountURL,
+          activeCampaignAccountKey: apiKeyData.activeCampaignAccountKey,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to update API keys");
+    }
+  }
 }
 
 export const userActions = new UserActions();

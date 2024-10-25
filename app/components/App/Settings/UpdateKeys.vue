@@ -46,6 +46,7 @@
 <script setup>
 import { z } from "zod";
 import { toast } from "vue-sonner";
+import { onMounted } from "vue";
 
 const loading = ref(false);
 const schema = z.object({
@@ -58,11 +59,28 @@ const state = ref({
   activeCampaignKey: "",
 });
 
+// Fetch existing API keys on component mount
+onMounted(async () => {
+  try {
+    const { apiKeys } = await $fetch("/api/account/api-keys");
+    state.value.activeCampaignUrl = apiKeys.activeCampaignAccountURL || "";
+    state.value.activeCampaignKey = apiKeys.activeCampaignAccountKey || "";
+  } catch (error) {
+    console.error("Failed to fetch API keys:", error);
+    toast.error("Failed to load existing API keys");
+  }
+});
+
 async function onSubmit(event) {
   try {
     loading.value = true;
-    // Here we'll add the API call to update the keys later
-    console.log("Submitted data:", event.data);
+    await $fetch("/api/account/update-api-keys", {
+      method: "POST",
+      body: {
+        activeCampaignAccountURL: event.data.activeCampaignUrl,
+        activeCampaignAccountKey: event.data.activeCampaignKey,
+      },
+    });
     toast.success("API keys updated successfully");
   } catch (error) {
     console.error(error);
