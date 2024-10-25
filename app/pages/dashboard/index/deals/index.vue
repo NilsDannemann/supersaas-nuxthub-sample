@@ -41,7 +41,7 @@
             {{ row.title }}
           </template>
           <template #value-data="{ row }">
-            {{ formatCurrency(row.value) }}
+            {{ formatCurrency(row.value, row.currency) }}
           </template>
           <template #contact-data="{ row }">
             {{ row.contact }}
@@ -112,12 +112,12 @@ const getPipelineUrl = (pipelineId) => {
   return `https://${baseUrl}.activehosted.com/app/deals?pipeline=${pipelineId}`;
 };
 
-const formatCurrency = (value) => {
+const formatCurrency = (value, currency) => {
   // Assuming the value from the API is in cents
   const dollars = value / 100;
   return new Intl.NumberFormat('en-US', { 
     style: 'currency', 
-    currency: 'USD',
+    currency: currency || 'USD', // Use the provided currency or default to USD
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(dollars);
