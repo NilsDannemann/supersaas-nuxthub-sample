@@ -106,7 +106,7 @@ const pipelines = ref([]);
 const deals = ref([]);
 const pipelinePage = ref(1);
 const dealPage = ref(1);
-const itemsPerPage = 50;
+const itemsPerPage = 25; // Changed from 50 to 25
 const totalItems = ref(0); // Add this line
 
 const pipelinesLoading = ref(false);
@@ -143,20 +143,12 @@ watch([pipelinesData, dealsData], ([newPipelinesData, newDealsData]) => {
 }, { immediate: true });
 
 const paginatedPipelines = computed(() => {
-  if (pipelines.value.length <= itemsPerPage) {
-    return pipelines.value;
-  }
   const start = (pipelinePage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return pipelines.value.slice(start, end);
 });
 
-const paginatedDeals = computed(() => {
-  if (deals.value.length <= itemsPerPage) {
-    return deals.value;
-  }
-  return deals.value;
-});
+const paginatedDeals = computed(() => deals.value);
 
 const pipelineTotalPages = computed(() => Math.ceil(pipelines.value.length / itemsPerPage));
 const dealTotalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage));
