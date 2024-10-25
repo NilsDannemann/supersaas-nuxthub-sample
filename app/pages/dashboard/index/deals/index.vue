@@ -45,6 +45,7 @@
             v-model="pipelinePage"
             :page-count="pipelineTotalPages"
             :total="pipelines.length"
+            :ui="paginationUI"
           />
         </div>
       </div>
@@ -79,16 +80,10 @@
             v-model="dealPage"
             :page-count="dealTotalPages"
             :total="totalItems"
-            :ui="{
-              wrapper: 'flex items-center gap-1',
-              button: {
-                icon: 'w-4 h-4',
-                base: 'disabled:opacity-50 disabled:cursor-not-allowed',
-                padding: 'p-1',
-                size: 'sm'
-              }
-            }"
-            :max-visible-pages="5"
+            :ui="paginationUI"
+            :max="7"
+            :show-first="true"
+            :show-last="true"
           />
         </div>
       </div>
@@ -204,4 +199,10 @@ onMounted(async () => {
     dealsLoading.value = false;
   }
 });
+
+const paginationUI = {
+  wrapper: 'flex items-center gap-1',
+  base: 'min-w-[35px] h-8 flex items-center justify-center text-sm',
+  rounded: 'rounded-sm',
+};
 </script>
