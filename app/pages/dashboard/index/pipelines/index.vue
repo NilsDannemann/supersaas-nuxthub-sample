@@ -1,20 +1,20 @@
 <template>
   <AppPageContainer title="Pipelines" description="Manage your deal pipelines">
-    <DealsPipelinesTable 
+    <PipelinesTable 
       :pipelines="pipelines"
       :loading="pipelinesLoading"
-      :baseUrl="baseUrl"
+      :baseUrlActiveCampaign="baseUrlActiveCampaign"
     />
   </AppPageContainer>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import DealsPipelinesTable from '~/components/Deals/PipelinesTable.vue';
+import PipelinesTable from '~/components/Deals/PipelinesTable.vue';
 
 const pipelines = ref([]);
-const baseUrl = ref('');
 const pipelinesLoading = ref(true);
+const baseUrlActiveCampaign = ref('');
 
 const { data: pipelinesData, refresh: refreshPipelines } = await useFetch('/api/deals/pipelines', { 
   lazy: true,
@@ -26,7 +26,7 @@ const loadPipelines = async () => {
   try {
     await refreshPipelines();
     pipelines.value = pipelinesData.value?.dealGroups || [];
-    baseUrl.value = pipelinesData.value?.baseUrl || '';
+    baseUrlActiveCampaign.value = pipelinesData.value?.baseUrlActiveCampaign || '';
   } catch (err) {
     console.error("Failed to fetch pipelines:", err);
   } finally {

@@ -61,7 +61,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  baseUrl: {
+  baseUrlActiveCampaign: {
     type: String,
     required: true
   }
@@ -88,7 +88,7 @@ const pageFrom = computed(() => ((page.value - 1) * itemsPerPage) + 1);
 const pageTo = computed(() => Math.min(page.value * itemsPerPage, props.pipelines.length));
 
 const getPipelineUrl = (pipelineId) => {
-  return `https://${props.baseUrl}.activehosted.com/app/deals?pipeline=${pipelineId}`;
+  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`;
 };
 
 const paginationUI = {

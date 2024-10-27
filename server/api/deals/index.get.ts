@@ -3,7 +3,7 @@ import { userActions } from "~~/server/services/db/UserActions";
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event);
 
-  if (!user) {
+  if (!user || !user.id) {
     throw createError({
       statusCode: 401,
       message: "Unauthorized",
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const query = getQuery(event);
-  const limit = Number(query.limit) || 20;
+  const limit = Number(query.limit) || 25;
   const offset = Number(query.offset) || 0;
 
   try {
@@ -35,9 +35,13 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    const activeCampaignAccountURL = apiKeys.activeCampaignAccountURL;
+    const baseUrlActiveCampaign = activeCampaignAccountURL.replace(/^https?:\/\//, '').split('.')[0];
+
     return {
       deals: response.deals,
       meta: response.meta,
+      baseUrlActiveCampaign,
     };
   } catch (error) {
     console.error("Failed to fetch deals:", error);

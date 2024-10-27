@@ -4,6 +4,7 @@
       :deals="deals"
       :loading="dealsLoading"
       :totalItems="totalItems"
+      :baseUrlActiveCampaign="baseUrlActiveCampaign"
       @update:page="updateDealsPage"
     />
   </AppPageContainer>
@@ -16,6 +17,7 @@ import DealsTable from '~/components/Deals/DealsTable.vue';
 const deals = ref([]);
 const totalItems = ref(0);
 const dealsLoading = ref(true);
+const baseUrlActiveCampaign = ref('');
 
 const dealPage = ref(1);
 const itemsPerPage = 25;
@@ -36,6 +38,7 @@ const loadDeals = async () => {
     await refreshDeals();
     deals.value = dealsData.value?.deals || [];
     totalItems.value = dealsData.value?.meta?.total || 0;
+    baseUrlActiveCampaign.value = dealsData.value?.baseUrlActiveCampaign || '';
   } catch (err) {
     console.error("Failed to fetch deals:", err);
   } finally {

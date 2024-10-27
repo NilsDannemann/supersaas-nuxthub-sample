@@ -3,7 +3,7 @@ import { userActions } from "~~/server/services/db/UserActions";
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event);
 
-  if (!user) {
+  if (!user || !user.id) {
     throw createError({
       statusCode: 401,
       message: "Unauthorized",
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    if (!pipelinesResponse || !pipelinesResponse.dealGroups) {
+    if (!pipelinesResponse || !Array.isArray(pipelinesResponse.dealGroups)) {
       throw new Error("Invalid response from ActiveCampaign API");
     }
 
@@ -51,17 +51,17 @@ export default defineEventHandler(async (event) => {
     }));
 
     // Extract the base URL from the activeCampaignAccountURL
-    const baseUrl = apiKeys.activeCampaignAccountURL.split('://')[1].split('.')[0];
+    const baseUrlActiveCampaign = apiKeys.activeCampaignAccountURL.replace(/^https?:\/\//, '').split('.')[0];
 
     return {
       dealGroups: pipelinesWithCounts,
-      baseUrl,
+      baseUrlActiveCampaign,
     };
   } catch (error) {
     console.error("Failed to fetch pipelines:", error);
     throw createError({
       statusCode: 500,
-      message: `Failed to fetch pipelines: ${error.message}`,
+      message: `Failed to fetch pipelines: ${error instanceof Error ? error.message : 'Unknown error'}`,
     });
   }
 });

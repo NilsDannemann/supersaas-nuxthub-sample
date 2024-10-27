@@ -18,10 +18,17 @@
           {{ formatCurrency(row.value) }}
         </template>
         <template #contact-data="{ row }">
-          {{ row.contact }}
+          <a
+            :href="getContactUrl(row.contact)"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+          >
+            {{ row.contact }}
+          </a>
         </template>
         <template #status-data="{ row }">
-          {{ row.status }}
+          {{ getStatusLabel(row.status) }}
         </template>
       </UTable>
       <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
@@ -57,6 +64,10 @@ const props = defineProps({
   totalItems: {
     type: Number,
     required: true
+  },
+  baseUrlActiveCampaign: {
+    type: String,
+    required: true
   }
 });
 
@@ -83,6 +94,19 @@ const formatCurrency = (value) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(value / 100);
+};
+
+const getStatusLabel = (status) => {
+  const statusMap = {
+    0: 'Open',
+    1: 'Won',
+    2: 'Lost'
+  };
+  return statusMap[status] || 'Unknown';
+};
+
+const getContactUrl = (contactId) => {
+  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/contacts/${contactId}`;
 };
 
 const paginationUI = {
