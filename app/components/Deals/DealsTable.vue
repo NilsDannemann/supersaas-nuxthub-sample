@@ -43,6 +43,9 @@
         <template #mdate-data="{ row }">
           {{ formatDate(row.mdate) }}
         </template>
+        <template #group-data="{ row }">
+          {{ row.group }}
+        </template>
       </UTable>
       <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
         No deals found.
@@ -89,6 +92,7 @@ const emit = defineEmits(['update:page']);
 const columns = [
   { key: 'title', label: 'Title' },
   { key: 'contact', label: 'Contact' },
+  { key: 'group', label: 'Pipeline' },
   { key: 'cdate', label: 'Created' },
   { key: 'mdate', label: 'Modified' },
   { key: 'status', label: 'Status' },
