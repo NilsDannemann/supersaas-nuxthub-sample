@@ -14,7 +14,7 @@
           color="black"
           variant="solid"
           size="lg"
-          class="flex items-center"
+          class="flex items-center pl-3"
         >
           <span>{{ activeSearch }}</span>
           <UButton
