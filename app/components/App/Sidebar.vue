@@ -88,22 +88,6 @@ const links = [
     click: () => (mobileSidebar.value = false),
   },
   {
-    label: "Posts",
-    to: "/dashboard/posts",
-    icon: "i-ph-note-duotone",
-    badge: "Demo",
-    exact: true,
-    click: () => (mobileSidebar.value = false),
-  },
-  {
-    label: "Image Gallery",
-    to: "/dashboard/image-gallery",
-    icon: "i-ph-images-duotone",
-    badge: "Demo",
-    exact: true,
-    click: () => (mobileSidebar.value = false),
-  },
-  {
     label: "Settings",
     to: "/dashboard/settings",
     icon: "i-ph-gear-duotone",
