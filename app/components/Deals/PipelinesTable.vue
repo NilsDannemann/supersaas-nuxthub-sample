@@ -3,8 +3,8 @@
     <h2 class="text-xl font-semibold mb-4">Pipelines</h2>
     <div class="border border-gray-200 dark:border-white/10 rounded-lg mb-8">
       <div v-if="loading" class="p-8 text-center">
-        <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto" />
-        <p class="mt-2 text-gray-500 dark:text-gray-400">Loading pipelines...</p>
+        <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto text-gray-400 dark:text-gray-500" />
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading pipelines...</p>
       </div>
       <template v-else>
         <UTable 
