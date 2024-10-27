@@ -1,37 +1,42 @@
 <template>
   <div>
     <h2 class="text-xl font-semibold mb-4">Pipelines</h2>
-    <div v-if="loading" class="p-4 text-center">
-      <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto" />
-      <p class="mt-2">Loading pipelines...</p>
-    </div>
-    <div v-else-if="pipelines.length === 0">No pipelines found.</div>
-    <div v-else class="border border-gray-200 dark:border-white/10 rounded-lg mb-8">
-      <UTable 
-        :rows="paginatedPipelines" 
-        :columns="columns"
-        :loading="loading"
-      >
-        <template #title-data="{ row }">
-          {{ row.title }}
-        </template>
-        <template #stages-data="{ row }">
-          {{ row.stages.length }}
-        </template>
-        <template #dealCount-data="{ row }">
-          {{ row.dealCount }}
-        </template>
-        <template #actions-data="{ row }">
-          <NuxtLink
-            :to="getPipelineUrl(row.id)"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
-          >
-            View
-          </NuxtLink>
-        </template>
-      </UTable>
+    <div class="border border-gray-200 dark:border-white/10 rounded-lg mb-8">
+      <div v-if="loading" class="p-8 text-center">
+        <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto" />
+        <p class="mt-2 text-gray-500 dark:text-gray-400">Loading pipelines...</p>
+      </div>
+      <template v-else>
+        <UTable 
+          v-if="pipelines.length > 0"
+          :rows="paginatedPipelines" 
+          :columns="columns"
+          :loading="loading"
+        >
+          <template #title-data="{ row }">
+            {{ row.title }}
+          </template>
+          <template #stages-data="{ row }">
+            {{ row.stages.length }}
+          </template>
+          <template #dealCount-data="{ row }">
+            {{ row.dealCount }}
+          </template>
+          <template #actions-data="{ row }">
+            <NuxtLink
+              :to="getPipelineUrl(row.id)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+            >
+              View
+            </NuxtLink>
+          </template>
+        </UTable>
+        <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
+          No pipelines found.
+        </div>
+      </template>
       <div v-if="pipelines.length > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
         <div class="text-sm text-gray-500 dark:text-gray-400">
           Showing {{ pageFrom }} to {{ pageTo }} of {{ pipelines.length }} results
@@ -97,4 +102,3 @@ const paginationUI = {
   inactive: 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
 };
 </script>
-

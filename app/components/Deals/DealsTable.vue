@@ -1,30 +1,35 @@
 <template>
   <div>
     <h2 class="text-xl font-semibold mb-4">Deals</h2>
-    <div v-if="loading" class="p-4 text-center">
-      <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto" />
-      <p class="mt-2">Loading deals...</p>
-    </div>
-    <div v-else-if="deals.length === 0">No deals found.</div>
-    <div v-else class="border border-gray-200 dark:border-white/10 rounded-lg">
-      <UTable 
-        :rows="deals" 
-        :columns="columns"
-        :loading="loading"
-      >
-        <template #title-data="{ row }">
-          {{ row.title }}
-        </template>
-        <template #value-data="{ row }">
-          {{ formatCurrency(row.value) }}
-        </template>
-        <template #contact-data="{ row }">
-          {{ row.contact }}
-        </template>
-        <template #status-data="{ row }">
-          {{ row.status }}
-        </template>
-      </UTable>
+    <div class="border border-gray-200 dark:border-white/10 rounded-lg">
+      <div v-if="loading" class="p-8 text-center">
+        <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto" />
+        <p class="mt-2 text-gray-500 dark:text-gray-400">Loading deals...</p>
+      </div>
+      <template v-else>
+        <UTable 
+          v-if="deals.length > 0"
+          :rows="deals" 
+          :columns="columns"
+          :loading="loading"
+        >
+          <template #title-data="{ row }">
+            {{ row.title }}
+          </template>
+          <template #value-data="{ row }">
+            {{ formatCurrency(row.value) }}
+          </template>
+          <template #contact-data="{ row }">
+            {{ row.contact }}
+          </template>
+          <template #status-data="{ row }">
+            {{ row.status }}
+          </template>
+        </UTable>
+        <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
+          No deals found.
+        </div>
+      </template>
       <div v-if="totalItems > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
         <div class="text-sm text-gray-500 dark:text-gray-400">
           Showing {{ pageFrom }} to {{ pageTo }} of {{ totalItems }} results
@@ -95,4 +100,3 @@ watch(page, (newPage) => {
   emit('update:page', newPage);
 });
 </script>
-
