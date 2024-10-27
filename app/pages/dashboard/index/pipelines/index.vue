@@ -1,5 +1,6 @@
 <template>
-  <AppPageContainer title="Pipelines" description="Manage your deal pipelines">
+  <AppPageContainer title="Pipelines" description="Manage your pipelines">
+    <PipelinesFilter />
     <PipelinesTable 
       :pipelines="pipelines"
       :loading="pipelinesLoading"
@@ -10,6 +11,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import PipelinesFilter from '~/components/Deals/PipelinesFilter.vue';
 import PipelinesTable from '~/components/Deals/PipelinesTable.vue';
 
 const pipelines = ref([]);

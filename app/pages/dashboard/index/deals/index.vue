@@ -1,5 +1,6 @@
 <template>
   <AppPageContainer title="Deals" description="Manage your deals">
+    <DealsFilter />
     <DealsTable 
       :deals="deals"
       :loading="dealsLoading"
@@ -7,11 +8,13 @@
       :baseUrlActiveCampaign="baseUrlActiveCampaign"
       @update:page="updateDealsPage"
     />
+    <!-- Add any other deal-related components here -->
   </AppPageContainer>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import DealsFilter from '~/components/Deals/DealsFilter.vue';
 import DealsTable from '~/components/Deals/DealsTable.vue';
 
 const deals = ref([]);
