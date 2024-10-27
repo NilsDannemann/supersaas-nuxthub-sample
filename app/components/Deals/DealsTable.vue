@@ -1,46 +1,43 @@
 <template>
-  <div>
-    <h2 class="text-xl font-semibold mb-4">Deals</h2>
-    <div class="border border-gray-200 dark:border-white/10 rounded-lg">
-      <div v-if="loading" class="p-8 text-center">
-        <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto text-gray-400 dark:text-gray-500" />
-        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading deals...</p>
+  <div class="border border-gray-200 dark:border-white/10 rounded-lg">
+    <div v-if="loading" class="p-8 text-center">
+      <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto text-gray-400 dark:text-gray-500" />
+      <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading deals...</p>
+    </div>
+    <template v-else>
+      <UTable 
+        v-if="deals.length > 0"
+        :rows="deals" 
+        :columns="columns"
+        :loading="loading"
+      >
+        <template #title-data="{ row }">
+          {{ row.title }}
+        </template>
+        <template #value-data="{ row }">
+          {{ formatCurrency(row.value) }}
+        </template>
+        <template #contact-data="{ row }">
+          {{ row.contact }}
+        </template>
+        <template #status-data="{ row }">
+          {{ row.status }}
+        </template>
+      </UTable>
+      <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
+        No deals found.
       </div>
-      <template v-else>
-        <UTable 
-          v-if="deals.length > 0"
-          :rows="deals" 
-          :columns="columns"
-          :loading="loading"
-        >
-          <template #title-data="{ row }">
-            {{ row.title }}
-          </template>
-          <template #value-data="{ row }">
-            {{ formatCurrency(row.value) }}
-          </template>
-          <template #contact-data="{ row }">
-            {{ row.contact }}
-          </template>
-          <template #status-data="{ row }">
-            {{ row.status }}
-          </template>
-        </UTable>
-        <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
-          No deals found.
-        </div>
-      </template>
-      <div v-if="totalItems > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-          Showing {{ pageFrom }} to {{ pageTo }} of {{ totalItems }} results
-        </div>
-        <UPagination
-          v-model="page"
-          :page-count="totalPages"
-          :total="totalItems"
-          :ui="paginationUI"
-        />
+    </template>
+    <div v-if="totalItems > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
+        Showing {{ pageFrom }} to {{ pageTo }} of {{ totalItems }} results
       </div>
+      <UPagination
+        v-model="page"
+        :page-count="totalPages"
+        :total="totalItems"
+        :ui="paginationUI"
+      />
     </div>
   </div>
 </template>

@@ -1,10 +1,5 @@
 <template>
-  <AppPageContainer title="Deals" description="Manage your deal pipelines and deals">
-    <DealsPipelinesTable 
-      :pipelines="pipelines"
-      :loading="pipelinesLoading"
-      :baseUrl="baseUrl"
-    />
+  <AppPageContainer title="Deals" description="Manage your deals">
     <DealsTable 
       :deals="deals"
       :loading="dealsLoading"
@@ -16,24 +11,14 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import DealsPipelinesTable from '~/components/Deals/PipelinesTable.vue';
 import DealsTable from '~/components/Deals/DealsTable.vue';
 
-const pipelines = ref([]);
 const deals = ref([]);
 const totalItems = ref(0);
-const baseUrl = ref('');
-
-const pipelinesLoading = ref(true);
 const dealsLoading = ref(true);
 
 const dealPage = ref(1);
 const itemsPerPage = 25;
-
-const { data: pipelinesData, refresh: refreshPipelines } = await useFetch('/api/deals/pipelines', { 
-  lazy: true,
-  immediate: false
-});
 
 const { data: dealsData, refresh: refreshDeals } = await useFetch(() => `/api/deals?limit=${itemsPerPage}&offset=${(dealPage.value - 1) * itemsPerPage}`, { 
   lazy: true,
@@ -43,19 +28,6 @@ const { data: dealsData, refresh: refreshDeals } = await useFetch(() => `/api/de
 
 const updateDealsPage = (newPage) => {
   dealPage.value = newPage;
-};
-
-const loadPipelines = async () => {
-  pipelinesLoading.value = true;
-  try {
-    await refreshPipelines();
-    pipelines.value = pipelinesData.value?.dealGroups || [];
-    baseUrl.value = pipelinesData.value?.baseUrl || '';
-  } catch (err) {
-    console.error("Failed to fetch pipelines:", err);
-  } finally {
-    pipelinesLoading.value = false;
-  }
 };
 
 const loadDeals = async () => {
@@ -72,7 +44,6 @@ const loadDeals = async () => {
 };
 
 onMounted(() => {
-  loadPipelines();
   loadDeals();
 });
 

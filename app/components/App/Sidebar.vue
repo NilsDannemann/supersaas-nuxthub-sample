@@ -81,10 +81,15 @@ const links = [
     click: () => (mobileSidebar.value = false),
   },
   {
+    label: "Pipelines",
+    icon: "i-ph-git-fork-duotone",
+    to: "/dashboard/pipelines",
+    click: () => (mobileSidebar.value = false),
+  },
+  {
     label: "Deals",
     icon: "i-ph-handshake-duotone",
     to: "/dashboard/deals",
-    badge: "New",
     click: () => (mobileSidebar.value = false),
   },
   {
