@@ -51,15 +51,16 @@
         No deals found.
       </div>
     </template>
-    <div v-if="totalItems > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+    <div v-if="totalItems > 0" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
       <div class="text-sm text-gray-500 dark:text-gray-400">
         Showing {{ pageFrom }} to {{ pageTo }} of {{ totalItems }} results
       </div>
       <UPagination
-        v-model="page"
+        v-model="currentPage"
         :page-count="totalPages"
         :total="totalItems"
         :ui="paginationUI"
+        @update:model-value="updatePage"
       />
     </div>
   </div>
@@ -100,11 +101,11 @@ const columns = [
 ];
 
 const itemsPerPage = 25;
-const page = ref(1);
+const currentPage = ref(1);
 
 const totalPages = computed(() => Math.ceil(props.totalItems / itemsPerPage));
-const pageFrom = computed(() => ((page.value - 1) * itemsPerPage) + 1);
-const pageTo = computed(() => Math.min(page.value * itemsPerPage, props.totalItems));
+const pageFrom = computed(() => ((currentPage.value - 1) * itemsPerPage) + 1);
+const pageTo = computed(() => Math.min(currentPage.value * itemsPerPage, props.totalItems));
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('en-US', { 
@@ -153,7 +154,8 @@ const formatDate = (dateString) => {
   });
 };
 
-watch(page, (newPage) => {
+const updatePage = (newPage) => {
+  currentPage.value = newPage;
   emit('update:page', newPage);
-});
+};
 </script>

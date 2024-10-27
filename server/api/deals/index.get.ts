@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const limit = Number(query.limit) || 25;
   const offset = Number(query.offset) || 0;
+  const search = query.search as string || '';
 
   try {
     const apiKeys = await userActions.findApiKeysByUserId(user.id);
@@ -24,14 +25,16 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const response = await $fetch(`${apiKeys.activeCampaignAccountUrl}/api/3/deals`, {
+    let url = `${apiKeys.activeCampaignAccountUrl}/api/3/deals?limit=${limit}&offset=${offset}`;
+    if (search) {
+      // Use the correct search parameter for ActiveCampaign API
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+
+    const response = await $fetch(url, {
       method: 'GET',
       headers: {
         'Api-Token': apiKeys.activeCampaignAccountKey,
-      },
-      params: {
-        limit,
-        offset,
       },
     });
 

@@ -1,32 +1,51 @@
 <template>
   <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-    <p class="text-gray-600 dark:text-gray-400 mb-4">Deals search and filter options will be added here.</p>
-    
-    <div v-if="pending" class="text-gray-600 dark:text-gray-400">
-      Loading fields...
+    <div class="flex items-center space-x-4">
+      <UInput
+        v-model="searchQuery"
+        icon="i-heroicons-magnifying-glass-20-solid"
+        placeholder="Search deals..."
+      />
+      <UTooltip :text="regularFieldsList">
+        <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+          {{ regularFields.length }} Regular Fields
+        </span>
+      </UTooltip>
+      <UTooltip :text="customFieldsList">
+        <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+          {{ customFields.length }} Custom Fields
+        </span>
+      </UTooltip>
     </div>
-    <div v-else-if="error" class="text-red-600 dark:text-gray-400">
-      {{ error }}
-    </div>
-    <template v-else>
-      <div class="flex items-center space-x-4">
-        <UTooltip :text="regularFieldsList">
-          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
-            {{ regularFields.length }} Regular Fields
-          </span>
-        </UTooltip>
-        <UTooltip :text="customFieldsList">
-          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
-            {{ customFields.length }} Custom Fields
-          </span>
-        </UTooltip>
-      </div>
-    </template>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+
+const searchQuery = ref('');
+const emit = defineEmits(['search']);
+
+// Custom debounce function
+const useDebounce = (value, delay = 300) => {
+  const debouncedValue = ref(value);
+  let timeout;
+
+  watch(value, (newValue) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      debouncedValue.value = newValue;
+    }, delay);
+  });
+
+  return debouncedValue;
+};
+
+const debouncedSearchQuery = useDebounce(searchQuery);
+
+watch(debouncedSearchQuery, (newValue) => {
+  emit('search', newValue);
+});
 
 const { data: customFieldsData, pending, error, refresh } = await useFetch('/api/deals/custom-fields', {
   lazy: true,
