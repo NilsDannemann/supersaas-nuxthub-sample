@@ -27,21 +27,13 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    if (!response || !response.dealCustomFieldMeta) {
-      throw createError({
-        statusCode: 404,
-        message: "No custom fields found",
-      });
-    }
-
     return {
-      dealCustomFieldMeta: response.dealCustomFieldMeta
+      dealCustomFieldMeta: response.dealCustomFieldMeta || []
     };
   } catch (error) {
     console.error("Failed to fetch custom deal fields:", error);
-    throw createError({
-      statusCode: 500,
-      message: "Failed to fetch custom deal fields",
-    });
+    return {
+      dealCustomFieldMeta: []
+    };
   }
 });
