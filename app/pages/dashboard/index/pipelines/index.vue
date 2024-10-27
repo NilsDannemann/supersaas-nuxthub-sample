@@ -1,5 +1,5 @@
 <template>
-  <AppPageContainer title="Pipelines" description="Manage your pipelines">
+  <AppPageContainer title="Pipelines" description="View your pipelines">
     <PipelinesFilter />
     <PipelinesTable 
       :pipelines="pipelines"

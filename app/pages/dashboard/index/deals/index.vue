@@ -1,5 +1,5 @@
 <template>
-  <AppPageContainer title="Deals" description="Manage your deals">
+  <AppPageContainer title="Deals" description="View your deals">
     <DealsFilter />
     <DealsTable 
       :deals="deals"
