@@ -59,7 +59,7 @@ const handleSearch = (query) => {
   loadDeals();
 };
 
-watch([dealPage, searchQuery], loadDeals);
+watch(dealPage, loadDeals);
 
 loadDeals();
 </script>

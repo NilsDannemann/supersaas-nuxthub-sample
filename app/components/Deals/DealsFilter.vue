@@ -1,11 +1,31 @@
 <template>
   <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-    <div class="flex items-center space-x-4">
-      <UInput
-        v-model="searchQuery"
-        icon="i-heroicons-magnifying-glass-20-solid"
-        placeholder="Search deals..."
-      />
+    <div class="flex items-center space-x-4 flex-wrap">
+      <div class="flex items-center flex-grow space-x-2">
+        <UInput
+          v-model="searchQuery"
+          icon="i-heroicons-magnifying-glass-20-solid"
+          placeholder="Search deals..."
+          @keyup.enter="addSearchChip"
+        />
+        <UBadge
+          v-if="activeSearch"
+          color="gray"
+          variant="solid"
+          size="lg"
+          class="flex items-center"
+        >
+          <span>{{ activeSearch }}</span>
+          <UButton
+            color="white"
+            variant="link"
+            icon="i-heroicons-x-mark-20-solid"
+            size="xs"
+            class="ml-2 !p-0"
+            @click="removeSearchChip"
+          />
+        </UBadge>
+      </div>
       <UTooltip :text="regularFieldsList">
         <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
           {{ regularFields.length }} Regular Fields
@@ -24,28 +44,21 @@
 import { ref, watch, computed } from 'vue';
 
 const searchQuery = ref('');
+const activeSearch = ref('');
 const emit = defineEmits(['search']);
 
-// Custom debounce function
-const useDebounce = (value, delay = 300) => {
-  const debouncedValue = ref(value);
-  let timeout;
-
-  watch(value, (newValue) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      debouncedValue.value = newValue;
-    }, delay);
-  });
-
-  return debouncedValue;
+const addSearchChip = () => {
+  if (searchQuery.value.trim()) {
+    activeSearch.value = searchQuery.value.trim();
+    emit('search', activeSearch.value);
+  }
 };
 
-const debouncedSearchQuery = useDebounce(searchQuery);
-
-watch(debouncedSearchQuery, (newValue) => {
-  emit('search', newValue);
-});
+const removeSearchChip = () => {
+  activeSearch.value = '';
+  searchQuery.value = '';
+  emit('search', '');
+};
 
 const { data: customFieldsData, pending, error, refresh } = await useFetch('/api/deals/custom-fields', {
   lazy: true,
