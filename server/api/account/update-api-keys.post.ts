@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
 
-  if (!body.activeCampaignAccountURL || !body.activeCampaignAccountKey) {
+  if (!body.activeCampaignAccountUrl || !body.activeCampaignAccountKey) {
     throw createError({
       statusCode: 400,
       message: "Missing required fields",
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     await userActions.updateApiKeys(user.id, {
-      activeCampaignAccountURL: body.activeCampaignAccountURL,
+      activeCampaignAccountUrl: body.activeCampaignAccountUrl,
       activeCampaignAccountKey: body.activeCampaignAccountKey,
     });
 

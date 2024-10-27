@@ -327,7 +327,7 @@ class UserActions {
     }
   }
 
-  async updateApiKeys(userId, apiKeyData) {
+  async updateApiKeys(userId, { activeCampaignAccountUrl, activeCampaignAccountKey }) {
     try {
       const existingApiKeys = await this.findApiKeysByUserId(userId);
 
@@ -335,16 +335,16 @@ class UserActions {
         await useDB()
           .update(tables.apiKeys)
           .set({
-            activeCampaignAccountURL: apiKeyData.activeCampaignAccountURL,
-            activeCampaignAccountKey: apiKeyData.activeCampaignAccountKey,
+            activeCampaignAccountUrl,
+            activeCampaignAccountKey,
             updatedAt: new Date(),
           })
           .where(eq(tables.apiKeys.userId, userId));
       } else {
         await useDB().insert(tables.apiKeys).values({
           userId,
-          activeCampaignAccountURL: apiKeyData.activeCampaignAccountURL,
-          activeCampaignAccountKey: apiKeyData.activeCampaignAccountKey,
+          activeCampaignAccountUrl,
+          activeCampaignAccountKey,
         });
       }
     } catch (error) {

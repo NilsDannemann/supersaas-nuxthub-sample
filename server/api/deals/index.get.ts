@@ -17,14 +17,14 @@ export default defineEventHandler(async (event) => {
   try {
     const apiKeys = await userActions.findApiKeysByUserId(user.id);
 
-    if (!apiKeys || !apiKeys.activeCampaignAccountURL || !apiKeys.activeCampaignAccountKey) {
+    if (!apiKeys || !apiKeys.activeCampaignAccountUrl || !apiKeys.activeCampaignAccountKey) {
       throw createError({
         statusCode: 400,
         message: "ActiveCampaign API keys not found",
       });
     }
 
-    const response = await $fetch(`${apiKeys.activeCampaignAccountURL}/api/3/deals`, {
+    const response = await $fetch(`${apiKeys.activeCampaignAccountUrl}/api/3/deals`, {
       method: 'GET',
       headers: {
         'Api-Token': apiKeys.activeCampaignAccountKey,
@@ -35,8 +35,8 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    const activeCampaignAccountURL = apiKeys.activeCampaignAccountURL;
-    const baseUrlActiveCampaign = activeCampaignAccountURL.replace(/^https?:\/\//, '').split('.')[0];
+    const activeCampaignAccountUrl = apiKeys.activeCampaignAccountUrl;
+    const baseUrlActiveCampaign = activeCampaignAccountUrl.replace(/^https?:\/\//, '').split('.')[0];
 
     return {
       deals: response.deals,

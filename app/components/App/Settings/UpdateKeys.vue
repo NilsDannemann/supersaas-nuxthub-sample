@@ -63,7 +63,7 @@ const state = ref({
 onMounted(async () => {
   try {
     const { apiKeys } = await $fetch("/api/account/api-keys");
-    state.value.activeCampaignUrl = apiKeys.activeCampaignAccountURL || "";
+    state.value.activeCampaignUrl = apiKeys.activeCampaignAccountUrl || "";
     state.value.activeCampaignKey = apiKeys.activeCampaignAccountKey || "";
   } catch (error) {
     console.error("Failed to fetch API keys:", error);
@@ -77,7 +77,7 @@ async function onSubmit(event) {
     await $fetch("/api/account/update-api-keys", {
       method: "POST",
       body: {
-        activeCampaignAccountURL: event.data.activeCampaignUrl,
+        activeCampaignAccountUrl: event.data.activeCampaignUrl,
         activeCampaignAccountKey: event.data.activeCampaignKey,
       },
     });

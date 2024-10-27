@@ -13,14 +13,14 @@ export default defineEventHandler(async (event) => {
   try {
     const apiKeys = await userActions.findApiKeysByUserId(user.id);
 
-    if (!apiKeys || !apiKeys.activeCampaignAccountURL || !apiKeys.activeCampaignAccountKey) {
+    if (!apiKeys || !apiKeys.activeCampaignAccountUrl || !apiKeys.activeCampaignAccountKey) {
       throw createError({
         statusCode: 400,
         message: "ActiveCampaign API keys not found",
       });
     }
 
-    const pipelinesResponse = await $fetch(`${apiKeys.activeCampaignAccountURL}/api/3/dealGroups`, {
+    const pipelinesResponse = await $fetch(`${apiKeys.activeCampaignAccountUrl}/api/3/dealGroups`, {
       method: 'GET',
       headers: {
         'Api-Token': apiKeys.activeCampaignAccountKey,
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
     // Fetch deal counts for each pipeline
     const dealCountsPromises = pipelinesResponse.dealGroups.map(async (pipeline) => {
-      const dealsResponse = await $fetch(`${apiKeys.activeCampaignAccountURL}/api/3/deals?filters[group]=${pipeline.id}&limit=1`, {
+      const dealsResponse = await $fetch(`${apiKeys.activeCampaignAccountUrl}/api/3/deals?filters[group]=${pipeline.id}&limit=1`, {
         method: 'GET',
         headers: {
           'Api-Token': apiKeys.activeCampaignAccountKey,
@@ -50,8 +50,8 @@ export default defineEventHandler(async (event) => {
       dealCount: dealCounts.find(count => count.pipelineId === pipeline.id)?.count || 0
     }));
 
-    // Extract the base URL from the activeCampaignAccountURL
-    const baseUrlActiveCampaign = apiKeys.activeCampaignAccountURL.replace(/^https?:\/\//, '').split('.')[0];
+    // Extract the base URL from the activeCampaignAccountUrl
+    const baseUrlActiveCampaign = apiKeys.activeCampaignAccountUrl.replace(/^https?:\/\//, '').split('.')[0];
 
     return {
       dealGroups: pipelinesWithCounts,

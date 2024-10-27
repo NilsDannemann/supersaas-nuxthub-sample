@@ -75,7 +75,7 @@ export const apiKeys = sqliteTable("api_keys", {
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  activeCampaignAccountURL: text("active_campaign_account_url").notNull(),
+  activeCampaignAccountUrl: text("active_campaign_account_url").notNull(),
   activeCampaignAccountKey: text("active_campaign_account_key").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).$default(
     () => new Date(),
