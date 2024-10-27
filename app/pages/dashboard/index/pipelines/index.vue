@@ -5,12 +5,13 @@
       :pipelines="pipelines"
       :loading="pipelinesLoading"
       :baseUrlActiveCampaign="baseUrlActiveCampaign"
+      :totalItems="totalItems"
     />
   </AppPageContainer>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import PipelinesFilter from '~/components/Deals/PipelinesFilter.vue';
 import PipelinesTable from '~/components/Deals/PipelinesTable.vue';
 
@@ -35,6 +36,8 @@ const loadPipelines = async () => {
     pipelinesLoading.value = false;
   }
 };
+
+const totalItems = computed(() => pipelines.value.length);
 
 onMounted(() => {
   loadPipelines();

@@ -32,11 +32,24 @@
         No pipelines found.
       </div>
     </template>
+    <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
+        {{ totalItems > 0 ? `Showing ${pageFrom} to ${pageTo} of ${totalItems} results` : 'No results' }}
+      </div>
+      <UPagination
+        v-if="totalItems > itemsPerPage"
+        v-model="currentPage"
+        :total="totalItems"
+        :page-count="itemsPerPage"
+        :ui="paginationUI"
+        @update:model-value="updatePage"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
   pipelines: {
@@ -50,8 +63,14 @@ const props = defineProps({
   baseUrlActiveCampaign: {
     type: String,
     required: true
+  },
+  totalItems: {
+    type: Number,
+    default: 0
   }
 });
+
+const emit = defineEmits(['update:page']);
 
 const columns = [
   { key: 'title', label: 'Title' },
@@ -59,7 +78,33 @@ const columns = [
   { key: 'dealCount', label: 'Deals' },
 ];
 
+const itemsPerPage = 25;
+const currentPage = ref(1);
+
+const pageFrom = computed(() => {
+  if (props.totalItems === 0) return 0;
+  return ((currentPage.value - 1) * itemsPerPage) + 1;
+});
+
+const pageTo = computed(() => {
+  if (props.totalItems === 0) return 0;
+  return Math.min(currentPage.value * itemsPerPage, props.totalItems);
+});
+
 const getPipelineUrl = (pipelineId) => {
   return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`;
+};
+
+const paginationUI = {
+  wrapper: 'flex items-center gap-1',
+  base: 'min-w-[35px] h-8 flex items-center justify-center text-sm',
+  rounded: 'rounded-sm',
+  active: 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900',
+  inactive: 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+};
+
+const updatePage = (newPage) => {
+  currentPage.value = newPage;
+  emit('update:page', newPage);
 };
 </script>
