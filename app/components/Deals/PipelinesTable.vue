@@ -1,7 +1,11 @@
 <template>
   <div>
     <h2 class="text-xl font-semibold mb-4">Pipelines</h2>
-    <div v-if="pipelines.length === 0">No pipelines found.</div>
+    <div v-if="loading" class="p-4 text-center">
+      <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto" />
+      <p class="mt-2">Loading pipelines...</p>
+    </div>
+    <div v-else-if="pipelines.length === 0">No pipelines found.</div>
     <div v-else class="border border-gray-200 dark:border-white/10 rounded-lg mb-8">
       <UTable 
         :rows="paginatedPipelines" 
@@ -93,3 +97,4 @@ const paginationUI = {
   inactive: 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
 };
 </script>
+

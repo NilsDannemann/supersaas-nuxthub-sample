@@ -46,8 +46,8 @@ const updateDealsPage = (newPage) => {
 };
 
 const loadPipelines = async () => {
+  pipelinesLoading.value = true;
   try {
-    pipelinesLoading.value = true;
     await refreshPipelines();
     pipelines.value = pipelinesData.value?.dealGroups || [];
     baseUrl.value = pipelinesData.value?.baseUrl || '';
@@ -59,8 +59,8 @@ const loadPipelines = async () => {
 };
 
 const loadDeals = async () => {
+  dealsLoading.value = true;
   try {
-    dealsLoading.value = true;
     await refreshDeals();
     deals.value = dealsData.value?.deals || [];
     totalItems.value = dealsData.value?.meta?.total || 0;

@@ -1,7 +1,11 @@
 <template>
   <div>
     <h2 class="text-xl font-semibold mb-4">Deals</h2>
-    <div v-if="deals.length === 0">No deals found.</div>
+    <div v-if="loading" class="p-4 text-center">
+      <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin h-8 w-8 mx-auto" />
+      <p class="mt-2">Loading deals...</p>
+    </div>
+    <div v-else-if="deals.length === 0">No deals found.</div>
     <div v-else class="border border-gray-200 dark:border-white/10 rounded-lg">
       <UTable 
         :rows="deals" 
@@ -91,3 +95,4 @@ watch(page, (newPage) => {
   emit('update:page', newPage);
 });
 </script>
+
