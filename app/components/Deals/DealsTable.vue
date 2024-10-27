@@ -51,11 +51,12 @@
         No deals found.
       </div>
     </template>
-    <div v-if="totalItems > itemsPerPage" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
       <div class="text-sm text-gray-500 dark:text-gray-400">
         Showing {{ pageFrom }} to {{ pageTo }} of {{ totalItems }} results
       </div>
       <UPagination
+        v-if="totalItems > itemsPerPage"
         v-model="currentPage"
         :total="totalItems"
         :page-count="itemsPerPage"
