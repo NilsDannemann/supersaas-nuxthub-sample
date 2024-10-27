@@ -6,11 +6,12 @@
           v-model="searchQuery"
           icon="i-heroicons-magnifying-glass-20-solid"
           placeholder="Search deals..."
+          trailing
           @keyup.enter="addSearchChip"
         />
         <UBadge
           v-if="activeSearch"
-          color="gray"
+          color="black"
           variant="solid"
           size="lg"
           class="flex items-center"
