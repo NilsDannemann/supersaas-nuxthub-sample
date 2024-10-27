@@ -12,7 +12,14 @@
         :loading="loading"
       >
         <template #title-data="{ row }">
-          {{ row.title }}
+          <a
+            :href="getDealUrl(row.id)"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+          >
+            {{ row.title }}
+          </a>
         </template>
         <template #value-data="{ row }">
           {{ formatCurrency(row.value) }}
@@ -115,6 +122,10 @@ const getStatusLabel = (status) => {
 
 const getContactUrl = (contactId) => {
   return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/contacts/${contactId}`;
+};
+
+const getDealUrl = (dealId) => {
+  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals/${dealId}`;
 };
 
 const paginationUI = {
