@@ -16,7 +16,7 @@
           size="lg"
           class="flex items-center pl-3"
         >
-          <span>{{ activeSearch }}</span>
+          <span>Search: "{{ activeSearch }}"</span>
           <UButton
             color="white"
             variant="link"
