@@ -30,6 +30,12 @@
         <template #status-data="{ row }">
           {{ getStatusLabel(row.status) }}
         </template>
+        <template #cdate-data="{ row }">
+          {{ formatDate(row.cdate) }}
+        </template>
+        <template #mdate-data="{ row }">
+          {{ formatDate(row.mdate) }}
+        </template>
       </UTable>
       <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
         No deals found.
@@ -74,10 +80,12 @@ const props = defineProps({
 const emit = defineEmits(['update:page']);
 
 const columns = [
-  { key: 'title', label: 'Deal' },
-  { key: 'value', label: 'Value' },
+  { key: 'title', label: 'Title' },
   { key: 'contact', label: 'Contact' },
+  { key: 'cdate', label: 'Created' },
+  { key: 'mdate', label: 'Modified' },
   { key: 'status', label: 'Status' },
+  { key: 'value', label: 'Value' },
 ];
 
 const itemsPerPage = 25;
@@ -115,6 +123,19 @@ const paginationUI = {
   rounded: 'rounded-sm',
   active: 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900',
   inactive: 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC'  // Adjust this if you want to display in a different time zone
+  });
 };
 
 watch(page, (newPage) => {
