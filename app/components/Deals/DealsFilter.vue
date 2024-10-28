@@ -2,8 +2,8 @@
   <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2 flex-grow">
-        <USelect v-model="selectedStatus" :options="statusOptions" placeholder="Filter Status" class="w-36" />
-        <USelect v-model="selectedPipeline" :options="pipelineOptions" placeholder="Filter Pipelines" class="w-36" />
+        <USelect v-model="selectedStatus" :options="statusOptions" placeholder="Any Status" class="w-36" />
+        <USelect v-model="selectedPipeline" :options="pipelineOptions" placeholder="Any Pipeline" class="w-36" />
         <UPopover :popper="{ placement: 'bottom-start' }">
           <template #default="{ isOpen }">
             <UButton 
@@ -25,7 +25,7 @@
               >
                 {{ selected.start 
                   ? `${format(selected.start, 'd MMM, yyyy')} - ${format(selected.end, 'd MMM, yyyy')}` 
-                  : 'Any dates' 
+                  : 'Any Date' 
                 }}
               </span>
             </UButton>
@@ -153,10 +153,10 @@ const { data: pipelinesData } = await useFetch('/api/deals/pipelines', {
 });
 
 const pipelineOptions = computed(() => {
-  if (!pipelinesData.value?.dealGroups) return [{ label: 'All Pipelines', value: '' }];
+  if (!pipelinesData.value?.dealGroups) return [{ label: 'Any Pipeline', value: '' }];
 
   return [
-    { label: 'All Pipelines', value: '' },
+    { label: 'Any Pipeline', value: '' },
     ...pipelinesData.value.dealGroups.map(pipeline => ({
       label: pipeline.title,
       value: pipeline.id.toString()
