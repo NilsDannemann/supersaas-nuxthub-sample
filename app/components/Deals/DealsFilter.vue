@@ -1,53 +1,57 @@
 <template>
   <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-    <div class="flex items-center space-x-4 flex-wrap">
-      <div class="flex items-center flex-grow space-x-2">
-        <UInput
-          v-model="searchQuery"
-          icon="i-heroicons-magnifying-glass-20-solid"
-          placeholder="Search deals..."
-          trailing
-          @keyup.enter="handleEnterKey"
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 flex-grow">
+        <USelect
+          v-model="selectedStatus"
+          :options="statusOptions"
+          placeholder="Filter by status"
+          class="w-48"
         />
-        <UBadge
-          v-if="activeSearch"
-          color="black"
-          variant="solid"
-          size="lg"
-          class="flex items-center pl-3"
-        >
-          <span>Search: "{{ activeSearch }}"</span>
-          <UButton
-            color="white"
-            variant="link"
-            icon="i-heroicons-x-mark-20-solid"
-            size="xs"
-            class="ml-2 !p-0"
-            @click="removeSearchChip"
+        <div class="flex items-center flex-grow space-x-2">
+          <UInput
+            v-model="searchQuery"
+            icon="i-heroicons-magnifying-glass-20-solid"
+            placeholder="Search deals..."
+            trailing
+            @keyup.enter="handleEnterKey"
           />
-        </UBadge>
+          <UBadge
+            v-if="activeSearch"
+            color="black"
+            variant="solid"
+            size="lg"
+            class="flex items-center pl-3"
+          >
+            <span>Search: "{{ activeSearch }}"</span>
+            <UButton
+              color="white"
+              variant="link"
+              icon="i-heroicons-x-mark-20-solid"
+              size="xs"
+              class="ml-2 !p-0"
+              @click="removeSearchChip"
+            />
+          </UBadge>
+        </div>
       </div>
-      <USelect
-        v-model="selectedStatus"
-        :options="statusOptions"
-        placeholder="Filter by status"
-        class="w-48"
-      />
-      <UButton
-        color="black"
-        label="Search"
-        @click="applyFilters"
-      />
-      <UTooltip :text="regularFieldsList">
-        <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
-          {{ regularFields.length }} Fields
-        </span>
-      </UTooltip>
-      <UTooltip :text="customFieldsList">
-        <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
-          {{ customFields.length }} Custom Fields
-        </span>
-      </UTooltip>
+      <div class="flex items-center gap-4">
+        <UTooltip :text="regularFieldsList">
+          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+            {{ regularFields.length }} Fields
+          </span>
+        </UTooltip>
+        <UTooltip :text="customFieldsList">
+          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+            {{ customFields.length }} Custom Fields
+          </span>
+        </UTooltip>
+        <UButton
+          color="black"
+          label="Search"
+          @click="applyFilters"
+        />
+      </div>
     </div>
   </div>
 </template>
