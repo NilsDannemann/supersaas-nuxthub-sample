@@ -21,7 +21,7 @@
             </div>
           </template>
           <span class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400">
-            {{ regularFields.length + customFields.length }} Fields
+            {{ regularFields.length + customFields.length }} Deal Fields
           </span>
         </UTooltip>
       </div>
