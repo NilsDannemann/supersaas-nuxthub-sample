@@ -10,7 +10,7 @@
             :trailing="true"
             color="white" 
             variant="solid"
-            class="w-48 justify-between font-normal [&>span:last-child]:text-gray-400 dark:[&>span:last-child]:text-gray-500"
+            class="w-48 justify-between font-normal [&>span:last-child]:text-gray-400 dark:[&>span:last-child]:text-gray-500 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
           >
             <span :class="{ 'text-gray-400 dark:text-gray-500': !selected.start }">
               {{ selected.start 

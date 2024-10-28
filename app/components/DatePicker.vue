@@ -26,12 +26,25 @@ const attrs = {
   color: 'primary',
   'is-dark': { selector: 'html', darkClass: 'dark' },
   'first-day-of-week': 2,
+  'title-class': 'text-sm font-medium',
+  'nav-class': 'text-sm',
 }
 </script>
 
 <template>
-  <VCalendarDatePicker v-if="date && (typeof date === 'object')" v-model.range="date" :columns="2" v-bind="{ ...attrs, ...$attrs }" />
-  <VCalendarDatePicker v-else v-model="date" v-bind="{ ...attrs, ...$attrs }" />
+  <VCalendarDatePicker 
+    v-if="date && (typeof date === 'object')" 
+    v-model.range="date" 
+    :columns="2" 
+    v-bind="{ ...attrs, ...$attrs }"
+    class="vc-container [&_.vc-arrow]:scale-75 [&_.vc-title]:!text-sm" 
+  />
+  <VCalendarDatePicker 
+    v-else 
+    v-model="date" 
+    v-bind="{ ...attrs, ...$attrs }" 
+    class="vc-container [&_.vc-arrow]:scale-75 [&_.vc-title]:!text-sm"
+  />
 </template>
 
 <style>
@@ -59,5 +72,10 @@ const attrs = {
   --vc-accent-700: rgb(var(--color-primary-700));
   --vc-accent-800: rgb(var(--color-primary-800));
   --vc-accent-900: rgb(var(--color-primary-900));
+}
+
+.vc-container {
+  --vc-title-size: 14px;
+  --vc-nav-size: 14px;
 }
 </style>
