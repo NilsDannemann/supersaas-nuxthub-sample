@@ -1,8 +1,20 @@
 <template>
-  <AppPageContainer 
-    title="Deals" 
-    :description="`${totalItems} Deals found`"
-  >
+  <AppPageContainer title="Deals">
+    <template #description>
+      <div class="flex items-center gap-4">
+        <span>{{ totalItems }} Deals</span>
+        <UTooltip :text="regularFieldsList">
+          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+            {{ regularFields.length }} Fields
+          </span>
+        </UTooltip>
+        <UTooltip :text="customFieldsList">
+          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+            {{ customFields.length }} Custom Fields
+          </span>
+        </UTooltip>
+      </div>
+    </template>
     <DealsFilter @filter="handleFilter" />
     <DealsTable 
       :deals="deals"
@@ -26,6 +38,42 @@ const baseUrlActiveCampaign = ref('');
 const searchQuery = ref('');
 const statusFilter = ref('');
 const pipelineFilter = ref('');
+
+const customFields = ref([]);
+const regularFields = ref([]);
+
+const { data: customFieldsData, pending, error } = await useFetch('/api/deals/custom-fields', {
+  lazy: true,
+  server: false,
+});
+
+watch(customFieldsData, (newData) => {
+  if (newData && newData.dealCustomFieldMeta) {
+    customFields.value = newData.dealCustomFieldMeta;
+  } else {
+    customFields.value = [];
+  }
+}, { immediate: true });
+
+// Fetch regular fields from the deals API
+const { data: dealsFieldsData } = await useFetch('/api/deals?limit=1', {
+  lazy: true,
+  server: false,
+});
+
+watch(dealsFieldsData, (newData) => {
+  if (newData && newData.deals && newData.deals.length > 0) {
+    regularFields.value = Object.keys(newData.deals[0]).filter(key => 
+      !['id', 'owner', 'contact', 'organization'].includes(key)
+    );
+  } else {
+    regularFields.value = [];
+  }
+}, { immediate: true });
+
+// Computed properties for tooltip content
+const regularFieldsList = computed(() => regularFields.value.join(', '));
+const customFieldsList = computed(() => customFields.value.map(field => field.fieldLabel).join(', '));
 
 const dealPage = ref(1);
 const itemsPerPage = 25;

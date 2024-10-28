@@ -3,7 +3,9 @@
     <div class="flex items-center justify-between gap-2">
       <div class="max-w-[calc(100%-3rem)] min-w-0">
         <h1 class="text-base font-semibold sm:text-xl truncate">{{ title }}</h1>
-        <p class="mt-1 text-sm text-gray-500 truncate">{{ description }}</p>
+        <div class="mt-1 text-sm text-gray-500">
+          <slot name="description">{{ description }}</slot>
+        </div>
       </div>
       <div class="flex items-center gap-2">
         <UButton
@@ -33,6 +35,6 @@ defineProps({
     type: String,
     required: false,
     default: "",
-  },
+  }
 });
 </script>
