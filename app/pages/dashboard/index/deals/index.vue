@@ -3,13 +3,23 @@
     <template #description>
       <div class="flex items-center gap-4">
         <span>{{ totalItems }} Deals</span>
-        <UTooltip :text="regularFieldsList">
-          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+        <UTooltip 
+          :text="regularFieldsList"
+          :ui="{ 
+            base: 'p-2 text-xs whitespace-normal h-auto'
+          }"
+        >
+          <span class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400">
             {{ regularFields.length }} Fields
           </span>
         </UTooltip>
-        <UTooltip :text="customFieldsList">
-          <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
+        <UTooltip 
+          :text="customFieldsList"
+          :ui="{ 
+            base: 'p-2 text-xs whitespace-normal h-auto'
+          }"
+        >
+          <span class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400">
             {{ customFields.length }} Custom Fields
           </span>
         </UTooltip>
