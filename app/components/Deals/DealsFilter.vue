@@ -2,58 +2,57 @@
   <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2 flex-grow">
-        <USelect
-          v-model="selectedStatus"
-          :options="statusOptions"
-          placeholder="Filter Status"
-          class="w-36"
-        />
-        <USelect
-          v-model="selectedPipeline"
-          :options="pipelineOptions"
-          placeholder="Filter Pipelines"
-          class="w-36"
-        />
-        <div class="flex items-center flex-grow space-x-2">
-          <UInput
-            v-model="searchQuery"
-            icon="i-heroicons-magnifying-glass-20-solid"
-            placeholder="Search"
-            trailing
-            @keyup.enter="handleEnterKey"
-          />
-          <UBadge
-            v-if="activeSearch"
-            color="black"
+        <USelect v-model="selectedStatus" :options="statusOptions" placeholder="Filter Status" class="w-36" />
+        <USelect v-model="selectedPipeline" :options="pipelineOptions" placeholder="Filter Pipelines" class="w-36" />
+        <UPopover :popper="{ placement: 'bottom-start' }">
+          <UButton 
+            icon="i-heroicons-calendar-20-solid" 
+            :trailing="true"
+            color="white" 
             variant="solid"
-            size="lg"
-            class="flex items-center pl-3"
+            class="w-64 justify-between font-normal"
           >
+            {{ format(selected.start, 'd MMM, yyyy') }} - {{ format(selected.end, 'd MMM, yyyy') }}
+          </UButton>
+
+          <template #panel="{ close }">
+            <div class="flex items-center sm:divide-x divide-gray-200 dark:divide-gray-800">
+              <div class="hidden sm:flex flex-col py-4">
+                <UButton 
+                  v-for="(range, index) in ranges" 
+                  :key="index" 
+                  :label="range.label" 
+                  color="gray" 
+                  variant="ghost"
+                  class="rounded-none px-6"
+                  :class="[isRangeSelected(range.duration) ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50']"
+                  truncate 
+                  @click="() => {
+                    selectRange(range.duration);
+                    close();
+                  }" 
+                />
+              </div>
+              <DatePicker v-model="selected" @close="close" />
+            </div>
+          </template>
+        </UPopover>
+        <div class="flex items-center flex-grow space-x-2">
+          <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search" trailing
+            @keyup.enter="handleEnterKey" />
+          <UBadge v-if="activeSearch" color="black" variant="solid" size="lg" class="flex items-center pl-3">
             <span>Search: "{{ activeSearch }}"</span>
-            <UButton
-              color="white"
-              variant="link"
-              icon="i-heroicons-x-mark-20-solid"
-              size="xs"
-              class="ml-2 !p-0"
-              @click="removeSearchChip"
-            />
+            <UButton color="white" variant="link" icon="i-heroicons-x-mark-20-solid" size="xs" class="ml-2 !p-0"
+              @click="removeSearchChip" />
           </UBadge>
         </div>
       </div>
       <div class="flex items-center gap-4">
-        <span
-          v-if="hasActiveFilters"
-          class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400"
-          @click="resetFilters"
-        >
+        <span v-if="hasActiveFilters" class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400"
+          @click="resetFilters">
           Reset Filters
         </span>
-        <UButton
-          color="black"
-          label="Apply"
-          @click="applyFilters"
-        />
+        <UButton color="black" label="Apply" @click="applyFilters" />
       </div>
     </div>
   </div>
@@ -61,6 +60,51 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+import { sub, format, isSameDay } from 'date-fns';
+
+const DEFAULT_DURATION = { days: 14 };
+
+const ranges = [
+  { label: 'Today', duration: { days: 0 } },
+  { label: 'Last 7 days', duration: { days: 7 } },
+  { label: 'Last 14 days', duration: { days: 14 } },
+  { label: 'Last 30 days', duration: { days: 30 } },
+  { label: 'Last 3 months', duration: { months: 3 } },
+  { label: 'Last 6 months', duration: { months: 6 } },
+  { label: 'Last year', duration: { years: 1 } }
+];
+
+const selected = ref({
+  start: sub(new Date(), DEFAULT_DURATION),
+  end: new Date()
+});
+
+function isRangeSelected(duration) {
+  // Special handling for "Today"
+  if (duration.days === 0) {
+    const today = new Date();
+    return isSameDay(selected.value.start, today) && 
+           isSameDay(selected.value.end, today);
+  }
+  return isSameDay(selected.value.start, sub(new Date(), duration)) && 
+         isSameDay(selected.value.end, new Date());
+}
+
+function selectRange(duration) {
+  // Special handling for "Today"
+  if (duration.days === 0) {
+    const today = new Date();
+    selected.value = {
+      start: today,
+      end: today
+    };
+  } else {
+    selected.value = {
+      start: sub(new Date(), duration),
+      end: new Date()
+    };
+  }
+}
 
 const searchQuery = ref('');
 const activeSearch = ref('');
@@ -83,7 +127,7 @@ const { data: pipelinesData } = await useFetch('/api/deals/pipelines', {
 
 const pipelineOptions = computed(() => {
   if (!pipelinesData.value?.dealGroups) return [{ label: 'All Pipelines', value: '' }];
-  
+
   return [
     { label: 'All Pipelines', value: '' },
     ...pipelinesData.value.dealGroups.map(pipeline => ({
@@ -92,6 +136,13 @@ const pipelineOptions = computed(() => {
     }))
   ];
 });
+
+// Watch for date range changes
+watch(selected, () => {
+  if (selected.value.start && selected.value.end) {
+    emitFilters();
+  }
+}, { deep: true });
 
 // Only triggers the actual search/filter
 const applyFilters = () => {
@@ -116,23 +167,35 @@ const emitFilters = () => {
   emit('filter', {
     search: activeSearch.value,
     status: selectedStatus.value,
-    pipeline: selectedPipeline.value
+    pipeline: selectedPipeline.value,
+    dateRange: {
+      start: selected.value.start,
+      end: selected.value.end
+    }
   });
 };
 
 const hasActiveFilters = computed(() => {
-  return activeSearch.value || selectedStatus.value || selectedPipeline.value;
+  const defaultStart = sub(new Date(), DEFAULT_DURATION);
+  const hasCustomDateRange = !isSameDay(selected.value.start, defaultStart) || 
+                           !isSameDay(selected.value.end, new Date());
+                           
+  return activeSearch.value || 
+         selectedStatus.value || 
+         selectedPipeline.value || 
+         hasCustomDateRange;
 });
 
-// Only resets UI state, never triggers API call
 const resetFilters = () => {
   searchQuery.value = '';
   activeSearch.value = '';
   selectedStatus.value = '';
   selectedPipeline.value = '';
+  selected.value = {
+    start: sub(new Date(), DEFAULT_DURATION),
+    end: new Date()
+  };
+  emitFilters();
 };
-
-// Fetch data when component is mounted
-// refresh(); <- Remove this line
 </script>
 
