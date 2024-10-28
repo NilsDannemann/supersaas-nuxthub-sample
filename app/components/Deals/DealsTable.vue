@@ -50,7 +50,7 @@
             rel="noopener noreferrer"
             class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
           >
-            {{ row.group }}
+            {{ getPipelineTitle(row.group) }}
           </a>
         </template>
       </UTable>
@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
   deals: {
@@ -110,6 +110,28 @@ const columns = [
 
 const itemsPerPage = 25;
 const currentPage = ref(1);
+
+// Fetch pipelines for the titles
+const { data: pipelinesData } = await useFetch('/api/deals/pipelines', { 
+  lazy: true,
+  server: false
+});
+
+// Create a map of pipeline IDs to titles
+const pipelineMap = computed(() => {
+  if (!pipelinesData.value?.dealGroups) return new Map();
+  
+  return new Map(
+    pipelinesData.value.dealGroups.map(pipeline => [
+      pipeline.id.toString(),
+      pipeline.title
+    ])
+  );
+});
+
+const getPipelineTitle = (pipelineId) => {
+  return pipelineMap.value.get(pipelineId.toString()) || pipelineId;
+};
 
 const pageFrom = computed(() => ((currentPage.value - 1) * itemsPerPage) + 1);
 const pageTo = computed(() => Math.min(currentPage.value * itemsPerPage, props.totalItems));
