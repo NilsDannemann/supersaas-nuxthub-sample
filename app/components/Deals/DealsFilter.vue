@@ -52,6 +52,13 @@
             {{ customFields.length }} Custom Fields
           </span>
         </UTooltip>
+        <span
+          v-if="hasActiveFilters"
+          class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400"
+          @click="resetFilters"
+        >
+          Reset Filters
+        </span>
         <UButton
           color="black"
           label="Search"
@@ -158,6 +165,18 @@ watch(dealsData, (newData) => {
 // Computed properties for tooltip content
 const regularFieldsList = computed(() => regularFields.value.join(', '));
 const customFieldsList = computed(() => customFields.value.map(field => field.fieldLabel).join(', '));
+
+const hasActiveFilters = computed(() => {
+  return activeSearch.value || selectedStatus.value || selectedPipeline.value;
+});
+
+// Only resets UI state, never triggers API call
+const resetFilters = () => {
+  searchQuery.value = '';
+  activeSearch.value = '';
+  selectedStatus.value = '';
+  selectedPipeline.value = '';
+};
 
 // Fetch data when component is mounted
 refresh();
