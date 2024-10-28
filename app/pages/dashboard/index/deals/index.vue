@@ -1,6 +1,6 @@
 <template>
   <AppPageContainer title="Deals" description="View your deals">
-    <DealsFilter @search="handleSearch" />
+    <DealsFilter @filter="handleFilter" />
     <DealsTable 
       :deals="deals"
       :loading="dealsLoading"
@@ -21,6 +21,7 @@ const totalItems = ref(0);
 const dealsLoading = ref(true);
 const baseUrlActiveCampaign = ref('');
 const searchQuery = ref('');
+const statusFilter = ref('');
 
 const dealPage = ref(1);
 const itemsPerPage = 25;
@@ -31,12 +32,20 @@ const { data: dealsData, refresh: refreshDeals } = await useFetch(() => `/api/de
   query: computed(() => ({
     limit: itemsPerPage,
     offset: (dealPage.value - 1) * itemsPerPage,
-    search: searchQuery.value
+    search: searchQuery.value,
+    status: statusFilter.value
   }))
 });
 
 const updateDealsPage = (newPage) => {
   dealPage.value = newPage;
+};
+
+const handleFilter = ({ search, status }) => {
+  searchQuery.value = search;
+  statusFilter.value = status;
+  dealPage.value = 1; // Reset to first page when filters change
+  loadDeals();
 };
 
 const loadDeals = async () => {
@@ -53,13 +62,8 @@ const loadDeals = async () => {
   }
 };
 
-const handleSearch = (query) => {
-  searchQuery.value = query;
-  dealPage.value = 1; // Reset to first page when searching
-  loadDeals();
-};
-
 watch(dealPage, loadDeals);
 
+// Initial load
 loadDeals();
 </script>

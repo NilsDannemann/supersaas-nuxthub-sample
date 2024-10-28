@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
   const limit = Number(query.limit) || 25;
   const offset = Number(query.offset) || 0;
   const search = query.search as string || '';
+  const status = query.status as string || '';
   const sort = query.sort as string || '-cdate'; // Default sort by creation date, newest first
 
   try {
@@ -27,8 +28,13 @@ export default defineEventHandler(async (event) => {
     }
 
     let url = `${apiKeys.activeCampaignAccountUrl}/api/3/deals?limit=${limit}&offset=${offset}`;
+    
+    // Add filters to the API call
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
+    }
+    if (status) {
+      url += `&filters[status]=${encodeURIComponent(status)}`;
     }
     if (sort) {
       url += `&orders[${sort.replace('-', '')}]=${sort.startsWith('-') ? 'DESC' : 'ASC'}`;

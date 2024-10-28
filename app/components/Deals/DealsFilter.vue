@@ -7,7 +7,6 @@
           icon="i-heroicons-magnifying-glass-20-solid"
           placeholder="Search deals..."
           trailing
-          @keyup.enter="addSearchChip"
         />
         <UBadge
           v-if="activeSearch"
@@ -27,6 +26,17 @@
           />
         </UBadge>
       </div>
+      <USelect
+        v-model="selectedStatus"
+        :options="statusOptions"
+        placeholder="Filter by status"
+        class="w-48"
+      />
+      <UButton
+        color="black"
+        label="Search"
+        @click="applyFilters"
+      />
       <UTooltip :text="regularFieldsList">
         <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
           {{ regularFields.length }} Fields
@@ -46,19 +56,32 @@ import { ref, watch, computed } from 'vue';
 
 const searchQuery = ref('');
 const activeSearch = ref('');
-const emit = defineEmits(['search']);
+const selectedStatus = ref('');
+const emit = defineEmits(['filter']);
 
-const addSearchChip = () => {
-  if (searchQuery.value.trim()) {
-    activeSearch.value = searchQuery.value.trim();
-    emit('search', activeSearch.value);
-  }
+const statusOptions = [
+  { label: 'All', value: '' },
+  { label: 'Open', value: '0' },
+  { label: 'Won', value: '1' },
+  { label: 'Lost', value: '2' }
+];
+
+const applyFilters = () => {
+  activeSearch.value = searchQuery.value.trim();
+  emitFilters();
 };
 
 const removeSearchChip = () => {
   activeSearch.value = '';
   searchQuery.value = '';
-  emit('search', '');
+  emitFilters();
+};
+
+const emitFilters = () => {
+  emit('filter', {
+    search: activeSearch.value,
+    status: selectedStatus.value
+  });
 };
 
 const { data: customFieldsData, pending, error, refresh } = await useFetch('/api/deals/custom-fields', {
