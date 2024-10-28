@@ -4,23 +4,24 @@
       <div class="flex items-center gap-4">
         <span>{{ totalItems }} Deals</span>
         <UTooltip 
-          :text="regularFieldsList"
           :ui="{ 
             base: 'p-2 text-xs whitespace-normal h-auto'
           }"
         >
+          <template #text>
+            <div class="space-y-2">
+              <div>
+                <div class="font-medium text-gray-900 dark:text-white mb-1">Regular Fields</div>
+                <div class="text-gray-500 dark:text-gray-400">{{ regularFieldsList }}</div>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900 dark:text-white mb-1">Custom Fields</div>
+                <div class="text-gray-500 dark:text-gray-400">{{ customFieldsList }}</div>
+              </div>
+            </div>
+          </template>
           <span class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400">
-            {{ regularFields.length }} Fields
-          </span>
-        </UTooltip>
-        <UTooltip 
-          :text="customFieldsList"
-          :ui="{ 
-            base: 'p-2 text-xs whitespace-normal h-auto'
-          }"
-        >
-          <span class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400">
-            {{ customFields.length }} Custom Fields
+            {{ regularFields.length + customFields.length }} Fields
           </span>
         </UTooltip>
       </div>
