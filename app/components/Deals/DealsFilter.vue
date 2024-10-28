@@ -5,20 +5,31 @@
         <USelect v-model="selectedStatus" :options="statusOptions" placeholder="Filter Status" class="w-36" />
         <USelect v-model="selectedPipeline" :options="pipelineOptions" placeholder="Filter Pipelines" class="w-36" />
         <UPopover :popper="{ placement: 'bottom-start' }">
-          <UButton 
-            icon="i-heroicons-calendar-20-solid" 
-            :trailing="true"
-            color="white" 
-            variant="solid"
-            class="w-48 justify-between font-normal [&>span:last-child]:text-gray-400 dark:[&>span:last-child]:text-gray-500 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400"
-          >
-            <span :class="{ 'text-gray-400 dark:text-gray-500': !selected.start }">
-              {{ selected.start 
-                ? `${format(selected.start, 'd MMM, yyyy')} - ${format(selected.end, 'd MMM, yyyy')}` 
-                : 'Any dates' 
-              }}
-            </span>
-          </UButton>
+          <template #default="{ isOpen }">
+            <UButton 
+              icon="i-heroicons-calendar-20-solid" 
+              :trailing="true"
+              color="white" 
+              variant="solid"
+              class="w-48 justify-between font-normal [&>span:last-child]:text-gray-400 dark:[&>span:last-child]:text-gray-500"
+              :class="[
+                isOpen ? 'ring-2 ring-primary-500 dark:ring-primary-400' : '',
+                'relative'
+              ]"
+            >
+              <span 
+                :class="[
+                  { 'text-gray-400 dark:text-gray-500': !selected.start },
+                  'truncate max-w-[160px] block'
+                ]"
+              >
+                {{ selected.start 
+                  ? `${format(selected.start, 'd MMM, yyyy')} - ${format(selected.end, 'd MMM, yyyy')}` 
+                  : 'Any dates' 
+                }}
+              </span>
+            </UButton>
+          </template>
 
           <template #panel="{ close }">
             <div class="flex items-center sm:divide-x divide-gray-200 dark:divide-gray-800">
