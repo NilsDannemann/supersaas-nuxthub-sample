@@ -1,5 +1,8 @@
 <template>
-  <AppPageContainer title="Pipelines" description="View your pipelines">
+  <AppPageContainer 
+    title="Pipelines" 
+    :description="`${totalItems} Pipelines found`"
+  >
     <PipelinesFilter />
     <PipelinesTable 
       :pipelines="pipelines"
@@ -18,6 +21,7 @@ import PipelinesTable from '~/components/Deals/PipelinesTable.vue';
 const pipelines = ref([]);
 const pipelinesLoading = ref(true);
 const baseUrlActiveCampaign = ref('');
+const totalItems = ref(0);
 
 const { data: pipelinesData, refresh: refreshPipelines } = await useFetch('/api/deals/pipelines', { 
   lazy: true,
@@ -30,6 +34,7 @@ const loadPipelines = async () => {
     await refreshPipelines();
     pipelines.value = pipelinesData.value?.dealGroups || [];
     baseUrlActiveCampaign.value = pipelinesData.value?.baseUrlActiveCampaign || '';
+    totalItems.value = pipelines.value.length;
   } catch (err) {
     console.error("Failed to fetch pipelines:", err);
   } finally {
@@ -37,9 +42,6 @@ const loadPipelines = async () => {
   }
 };
 
-const totalItems = computed(() => pipelines.value.length);
-
-onMounted(() => {
-  loadPipelines();
-});
+// Initial load
+loadPipelines();
 </script>
