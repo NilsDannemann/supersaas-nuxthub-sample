@@ -88,7 +88,7 @@ const links = [
   },
   {
     label: "Deals",
-    icon: "i-ph-handshake-duotone",
+    icon: "i-ph-chart-bar-duotone",
     to: "/dashboard/deals",
     click: () => (mobileSidebar.value = false),
   },
