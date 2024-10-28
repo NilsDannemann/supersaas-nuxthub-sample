@@ -61,7 +61,7 @@
         </span>
         <UButton
           color="black"
-          label="Search"
+          label="Apply Filters"
           @click="applyFilters"
         />
       </div>
