@@ -22,6 +22,7 @@ const dealsLoading = ref(true);
 const baseUrlActiveCampaign = ref('');
 const searchQuery = ref('');
 const statusFilter = ref('');
+const pipelineFilter = ref('');
 
 const dealPage = ref(1);
 const itemsPerPage = 25;
@@ -33,7 +34,8 @@ const { data: dealsData, refresh: refreshDeals } = await useFetch(() => `/api/de
     limit: itemsPerPage,
     offset: (dealPage.value - 1) * itemsPerPage,
     search: searchQuery.value,
-    status: statusFilter.value
+    status: statusFilter.value,
+    pipeline: pipelineFilter.value
   }))
 });
 
@@ -41,9 +43,10 @@ const updateDealsPage = (newPage) => {
   dealPage.value = newPage;
 };
 
-const handleFilter = ({ search, status }) => {
+const handleFilter = ({ search, status, pipeline }) => {
   searchQuery.value = search;
   statusFilter.value = status;
+  pipelineFilter.value = pipeline;
   dealPage.value = 1; // Reset to first page when filters change
   loadDeals();
 };

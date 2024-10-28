@@ -5,8 +5,14 @@
         <USelect
           v-model="selectedStatus"
           :options="statusOptions"
-          placeholder="Filter by status"
-          class="w-48"
+          placeholder="Filter Status"
+          class="w-36"
+        />
+        <USelect
+          v-model="selectedPipeline"
+          :options="pipelineOptions"
+          placeholder="Filter Pipelines"
+          class="w-36"
         />
         <div class="flex items-center flex-grow space-x-2">
           <UInput
@@ -62,14 +68,33 @@ import { ref, watch, computed } from 'vue';
 const searchQuery = ref('');
 const activeSearch = ref('');
 const selectedStatus = ref('');
+const selectedPipeline = ref('');
 const emit = defineEmits(['filter']);
 
 const statusOptions = [
-  { label: 'All', value: '' },
+  { label: 'Any Status', value: '' },
   { label: 'Open', value: '0' },
   { label: 'Won', value: '1' },
   { label: 'Lost', value: '2' }
 ];
+
+// Fetch pipelines for the dropdown
+const { data: pipelinesData } = await useFetch('/api/deals/pipelines', {
+  lazy: true,
+  server: false
+});
+
+const pipelineOptions = computed(() => {
+  if (!pipelinesData.value?.dealGroups) return [{ label: 'All Pipelines', value: '' }];
+  
+  return [
+    { label: 'All Pipelines', value: '' },
+    ...pipelinesData.value.dealGroups.map(pipeline => ({
+      label: pipeline.title,
+      value: pipeline.id.toString()
+    }))
+  ];
+});
 
 // Only triggers the actual search/filter
 const applyFilters = () => {
@@ -93,7 +118,8 @@ const removeSearchChip = () => {
 const emitFilters = () => {
   emit('filter', {
     search: activeSearch.value,
-    status: selectedStatus.value
+    status: selectedStatus.value,
+    pipeline: selectedPipeline.value
   });
 };
 

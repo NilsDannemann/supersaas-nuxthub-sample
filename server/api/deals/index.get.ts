@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
   const offset = Number(query.offset) || 0;
   const search = query.search as string || '';
   const status = query.status as string || '';
+  const pipeline = query.pipeline as string || '';
   const sort = query.sort as string || '-cdate'; // Default sort by creation date, newest first
 
   try {
@@ -35,6 +36,9 @@ export default defineEventHandler(async (event) => {
     }
     if (status) {
       url += `&filters[status]=${encodeURIComponent(status)}`;
+    }
+    if (pipeline) {
+      url += `&filters[group]=${encodeURIComponent(pipeline)}`;
     }
     if (sort) {
       url += `&orders[${sort.replace('-', '')}]=${sort.startsWith('-') ? 'DESC' : 'ASC'}`;
