@@ -44,7 +44,14 @@
           {{ formatDate(row.mdate) }}
         </template>
         <template #group-data="{ row }">
-          {{ row.group }}
+          <a
+            :href="getPipelineUrl(row.group)"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+          >
+            {{ row.group }}
+          </a>
         </template>
       </UTable>
       <div v-else class="p-8 text-center text-gray-500 dark:text-gray-400">
@@ -131,6 +138,10 @@ const getContactUrl = (contactId) => {
 
 const getDealUrl = (dealId) => {
   return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals/${dealId}`;
+};
+
+const getPipelineUrl = (pipelineId) => {
+  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`;
 };
 
 const paginationUI = {

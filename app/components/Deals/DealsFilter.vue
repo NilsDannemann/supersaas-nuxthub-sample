@@ -29,7 +29,7 @@
       </div>
       <UTooltip :text="regularFieldsList">
         <span class="text-sm underline cursor-help text-gray-500 dark:text-gray-400">
-          {{ regularFields.length }} Regular Fields
+          {{ regularFields.length }} Fields
         </span>
       </UTooltip>
       <UTooltip :text="customFieldsList">
