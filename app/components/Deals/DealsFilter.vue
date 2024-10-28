@@ -10,9 +10,14 @@
             :trailing="true"
             color="white" 
             variant="solid"
-            class="w-64 justify-between font-normal"
+            class="w-48 justify-between font-normal [&>span:last-child]:text-gray-400 dark:[&>span:last-child]:text-gray-500"
           >
-            {{ format(selected.start, 'd MMM, yyyy') }} - {{ format(selected.end, 'd MMM, yyyy') }}
+            <span :class="{ 'text-gray-400 dark:text-gray-500': !selected.start }">
+              {{ selected.start 
+                ? `${format(selected.start, 'd MMM, yyyy')} - ${format(selected.end, 'd MMM, yyyy')}` 
+                : 'Any dates' 
+              }}
+            </span>
           </UButton>
 
           <template #panel="{ close }">
@@ -65,6 +70,7 @@ import { sub, format, isSameDay } from 'date-fns';
 const DEFAULT_DURATION = { days: 14 };
 
 const ranges = [
+  { label: 'Any dates', duration: null },
   { label: 'Today', duration: { days: 0 } },
   { label: 'Last 7 days', duration: { days: 7 } },
   { label: 'Last 14 days', duration: { days: 14 } },
@@ -75,11 +81,14 @@ const ranges = [
 ];
 
 const selected = ref({
-  start: sub(new Date(), DEFAULT_DURATION),
-  end: new Date()
+  start: null,
+  end: null
 });
 
 function isRangeSelected(duration) {
+  if (!duration) {
+    return !selected.value.start && !selected.value.end;
+  }
   // Special handling for "Today"
   if (duration.days === 0) {
     const today = new Date();
@@ -91,6 +100,13 @@ function isRangeSelected(duration) {
 }
 
 function selectRange(duration) {
+  if (!duration) {
+    selected.value = {
+      start: null,
+      end: null
+    };
+    return;
+  }
   // Special handling for "Today"
   if (duration.days === 0) {
     const today = new Date();
@@ -168,22 +184,20 @@ const emitFilters = () => {
     search: activeSearch.value,
     status: selectedStatus.value,
     pipeline: selectedPipeline.value,
-    dateRange: {
+    dateRange: selected.value.start ? {
       start: selected.value.start,
       end: selected.value.end
-    }
+    } : null
   });
 };
 
 const hasActiveFilters = computed(() => {
-  const defaultStart = sub(new Date(), DEFAULT_DURATION);
-  const hasCustomDateRange = !isSameDay(selected.value.start, defaultStart) || 
-                           !isSameDay(selected.value.end, new Date());
+  const hasDateFilter = selected.value.start !== null;
                            
   return activeSearch.value || 
          selectedStatus.value || 
          selectedPipeline.value || 
-         hasCustomDateRange;
+         hasDateFilter;
 });
 
 const resetFilters = () => {
@@ -192,8 +206,8 @@ const resetFilters = () => {
   selectedStatus.value = '';
   selectedPipeline.value = '';
   selected.value = {
-    start: sub(new Date(), DEFAULT_DURATION),
-    end: new Date()
+    start: null,
+    end: null
   };
   emitFilters();
 };
