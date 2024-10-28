@@ -7,6 +7,7 @@
           icon="i-heroicons-magnifying-glass-20-solid"
           placeholder="Search deals..."
           trailing
+          @keyup.enter="handleEnterKey"
         />
         <UBadge
           v-if="activeSearch"
@@ -66,17 +67,25 @@ const statusOptions = [
   { label: 'Lost', value: '2' }
 ];
 
+// Only triggers the actual search/filter
 const applyFilters = () => {
-  activeSearch.value = searchQuery.value.trim();
   emitFilters();
 };
 
+// Just updates UI state
+const handleEnterKey = () => {
+  if (searchQuery.value.trim()) {
+    activeSearch.value = searchQuery.value.trim();
+  }
+};
+
+// Just updates UI state
 const removeSearchChip = () => {
   activeSearch.value = '';
   searchQuery.value = '';
-  emitFilters();
 };
 
+// Emits current filter state to parent
 const emitFilters = () => {
   emit('filter', {
     search: activeSearch.value,
