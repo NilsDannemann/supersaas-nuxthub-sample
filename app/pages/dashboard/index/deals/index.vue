@@ -1,5 +1,8 @@
 <template>
-  <AppPageContainer title="Deals" description="View your deals">
+  <AppPageContainer 
+    title="Deals" 
+    :description="`${totalItems} Deals found`"
+  >
     <DealsFilter @filter="handleFilter" />
     <DealsTable 
       :deals="deals"
