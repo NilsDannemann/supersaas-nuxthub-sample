@@ -68,7 +68,7 @@
           @click="resetFilters">
           Reset Filters
         </span>
-        <UButton color="black" label="Apply" @click="applyFilters" />
+        <UButton color="primary" label="Apply" @click="applyFilters" />
       </div>
     </div>
   </div>
