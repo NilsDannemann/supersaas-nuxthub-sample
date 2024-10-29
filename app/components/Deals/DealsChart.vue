@@ -202,9 +202,23 @@ const chartOptions = {
     },
     tooltip: {
       enabled: true,
-      mode: 'index',
-      intersect: false,
-      reverse: true
+      mode: 'nearest',
+      intersect: true,
+      reverse: true,
+      callbacks: {
+        title: (context) => {
+          if (context[0]) {
+            const stack = context[0].dataset.stack;
+            const month = context[0].label;
+            return `${stack} - ${month}`;
+          }
+          return '';
+        },
+        label: (context) => {
+          const label = context.dataset.label.split(' ')[0]; // Only get the status (Won/Lost/Open)
+          return `${label}: ${context.parsed.y}`;
+        }
+      }
     }
   },
   scales: {
