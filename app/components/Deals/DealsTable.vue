@@ -16,7 +16,7 @@
             :href="getDealUrl(row.id)"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+            class="text-gray-900 dark:text-white underline"
           >
             {{ row.title }}
           </a>
@@ -29,7 +29,7 @@
             :href="getContactUrl(row.contact)"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+            class="text-gray-900 dark:text-white underline"
           >
             {{ row.contact }}
           </a>
@@ -48,7 +48,7 @@
             :href="getPipelineUrl(row.group)"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+            class="text-gray-900 dark:text-white underline"
           >
             {{ getPipelineTitle(row.group) }}
           </a>
@@ -154,15 +154,24 @@ const getStatusLabel = (status) => {
 };
 
 const getContactUrl = (contactId) => {
-  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/contacts/${contactId}`;
+  return {
+    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/contacts/${contactId}`,
+    class: 'text-gray-900 dark:text-white hover:underline'
+  };
 };
 
 const getDealUrl = (dealId) => {
-  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals/${dealId}`;
+  return {
+    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals/${dealId}`,
+    class: 'text-gray-900 dark:text-white hover:underline'
+  };
 };
 
 const getPipelineUrl = (pipelineId) => {
-  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`;
+  return {
+    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`,
+    class: 'text-gray-900 dark:text-white hover:underline'
+  };
 };
 
 const paginationUI = {

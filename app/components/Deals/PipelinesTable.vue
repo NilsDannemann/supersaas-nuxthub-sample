@@ -13,10 +13,10 @@
       >
         <template #title-data="{ row }">
           <a
-            :href="getPipelineUrl(row.id)"
+            :href="getPipelineUrl(row.id).href"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-primary-500 hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300 underline"
+            class="text-gray-900 dark:text-white underline"
           >
             {{ row.title }}
           </a>
@@ -92,7 +92,17 @@ const pageTo = computed(() => {
 });
 
 const getPipelineUrl = (pipelineId) => {
-  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`;
+  return {
+    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`,
+    class: 'text-gray-900 dark:text-white underline'
+  };
+};
+
+const getDealUrl = (dealId) => {
+  return {
+    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals/${dealId}`,
+    class: 'text-gray-900 dark:text-white underline'
+  };
 };
 
 const paginationUI = {
