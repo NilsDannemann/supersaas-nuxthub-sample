@@ -49,6 +49,7 @@ const baseUrlActiveCampaign = ref('');
 const searchQuery = ref('');
 const statusFilter = ref('');
 const pipelineFilter = ref('');
+const dateRangeFilter = ref(null);
 
 const customFields = ref([]);
 const regularFields = ref([]);
@@ -97,7 +98,8 @@ const { data: dealsData, refresh: refreshDeals } = await useFetch(() => `/api/de
     offset: (dealPage.value - 1) * itemsPerPage,
     search: searchQuery.value,
     status: statusFilter.value,
-    pipeline: pipelineFilter.value
+    pipeline: pipelineFilter.value,
+    dateRange: dateRangeFilter.value ? JSON.stringify(dateRangeFilter.value) : null
   }))
 });
 
@@ -105,10 +107,11 @@ const updateDealsPage = (newPage) => {
   dealPage.value = newPage;
 };
 
-const handleFilter = ({ search, status, pipeline }) => {
+const handleFilter = ({ search, status, pipeline, dateRange }) => {
   searchQuery.value = search;
   statusFilter.value = status;
   pipelineFilter.value = pipeline;
+  dateRangeFilter.value = dateRange;
   dealPage.value = 1; // Reset to first page when filters change
   loadDeals();
 };
@@ -116,7 +119,15 @@ const handleFilter = ({ search, status, pipeline }) => {
 const loadDeals = async () => {
   dealsLoading.value = true;
   try {
-    await refreshDeals();
+    const query = {
+      page: dealPage.value,
+      search: searchQuery.value,
+      status: statusFilter.value,
+      pipeline: pipelineFilter.value,
+      dateRange: dateRangeFilter.value ? JSON.stringify(dateRangeFilter.value) : null
+    };
+    
+    await refreshDeals(query);
     deals.value = dealsData.value?.deals || [];
     totalItems.value = dealsData.value?.meta?.total || 0;
     baseUrlActiveCampaign.value = dealsData.value?.baseUrlActiveCampaign || '';

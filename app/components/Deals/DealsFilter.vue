@@ -49,7 +49,7 @@
                   }" 
                 />
               </div>
-              <DatePicker v-model="selected" @close="close" />
+              <DatePicker v-model="selected" @close="close" @handle-date-selection="handleDateSelection" />
             </div>
           </template>
         </UPopover>
@@ -122,13 +122,14 @@ function selectRange(duration) {
   if (duration.days === 0) {
     const today = new Date();
     selected.value = {
-      start: today,
-      end: today
+      start: new Date(today.setHours(0, 0, 0, 0)), // Start of the day
+      end: new Date(today.setHours(23, 59, 59, 999)) // End of the day
     };
   } else {
+    const startDate = sub(new Date(), duration);
     selected.value = {
-      start: sub(new Date(), duration),
-      end: new Date()
+      start: new Date(startDate.setHours(0, 0, 0, 0)), // Start of the day
+      end: new Date(new Date().setHours(23, 59, 59, 999)) // End of the day
     };
   }
 }
@@ -219,5 +220,13 @@ const resetFilters = () => {
   };
   emitFilters();
 };
+
+// When a specific day is selected
+function handleDateSelection(date) {
+  selected.value = {
+    start: new Date(new Date(date).setHours(0, 0, 0, 0)), // Start of the day
+    end: new Date(new Date(date).setHours(23, 59, 59, 999)) // End of the day
+  };
+}
 </script>
 
