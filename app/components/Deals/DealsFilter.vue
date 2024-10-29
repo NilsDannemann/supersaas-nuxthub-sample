@@ -164,15 +164,12 @@ const pipelineOptions = computed(() => {
   ];
 });
 
-// Watch for date range changes
-watch(selected, () => {
-  if (selected.value.start && selected.value.end) {
-    emitFilters();
-  }
-}, { deep: true });
-
 // Only triggers the actual search/filter
 const applyFilters = () => {
+  // Update activeSearch from searchQuery if there is one
+  if (searchQuery.value.trim()) {
+    activeSearch.value = searchQuery.value.trim();
+  }
   emitFilters();
 };
 
