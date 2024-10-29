@@ -85,12 +85,14 @@ const links = [
     icon: "i-ph-chart-bar-duotone",
     to: "/dashboard/deals",
     click: () => (mobileSidebar.value = false),
+    badge: "AC"
   },
   {
     label: "Pipelines",
     icon: "i-ph-git-fork-duotone",
     to: "/dashboard/pipelines",
     click: () => (mobileSidebar.value = false),
+    badge: "AC"
   },
   {
     label: "Settings",
