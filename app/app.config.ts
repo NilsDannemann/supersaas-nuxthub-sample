@@ -7,7 +7,7 @@ export default defineAppConfig({
     },
   },
   seo: {
-    title: "Supersaas Nuxthub - Fullstack SaaS Starter Kit with Nuxthub",
-    description: "Modern fullstack web templates, starter kits & freebies.",
+    title: "CRM Prism - Modern CRM Solution",
+    description: "Modern fullstack CRM solution with powerful integrations.",
   },
 });

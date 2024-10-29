@@ -41,7 +41,7 @@ async function sendVerificationEmail(
     console.table({ email, oneTimePassword, emailVerificationCode });
   } else {
     const html = renderOtpTemplate({
-      logoUrl: "https://microbot.dev/logo.png",
+      logoUrl: "https://crmprism.dev/logo.png",
       code: oneTimePassword,
       link: `${baseUrl}/api/auth/verify-email-token?token=${emailVerificationCode}`,
       domain: baseUrl,
@@ -50,7 +50,7 @@ async function sendVerificationEmail(
     const emailOptions = {
       to: email,
       from: fromEmail,
-      subject: "Supersaas - Signup",
+      subject: "CRM Prism - Signup",
       html,
     };
     await useEmail(emailProvider).send(emailOptions);
