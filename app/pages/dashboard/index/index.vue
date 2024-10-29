@@ -1,5 +1,8 @@
 <template>
   <AppPageContainer pretitle="overview" :title="`${greeting}, ${user.name}`">
+    <template #description>
+      <span class="text-sm text-gray-500">Dashboard Overview</span>
+    </template>
     <DemoDashboardHome />
   </AppPageContainer>
 </template>
