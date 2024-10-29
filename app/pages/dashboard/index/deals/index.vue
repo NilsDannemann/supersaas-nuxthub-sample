@@ -3,6 +3,10 @@
     <template #description>
       <div class="flex items-center gap-4">
         <span>{{ totalItems }} Deals</span>
+        <span v-for="(value, currency) in totalDealValues" :key="currency">
+          {{ formatCurrency(value, currency) }}
+        </span>
+        <span class="text-gray-300 dark:text-gray-600">|</span>
         <UTooltip 
           :ui="{ 
             base: 'p-2 text-xs whitespace-normal h-auto'
@@ -53,6 +57,8 @@ const dateRangeFilter = ref(null);
 
 const customFields = ref([]);
 const regularFields = ref([]);
+
+const totalDealValues = ref({});
 
 const { data: customFieldsData, pending, error } = await useFetch('/api/deals/custom-fields', {
   lazy: true,
@@ -131,6 +137,16 @@ const loadDeals = async () => {
     deals.value = dealsData.value?.deals || [];
     totalItems.value = dealsData.value?.meta?.total || 0;
     baseUrlActiveCampaign.value = dealsData.value?.baseUrlActiveCampaign || '';
+
+    // Use the meta.currencies information for total values
+    if (dealsData.value?.meta?.currencies) {
+      totalDealValues.value = Object.entries(dealsData.value.meta.currencies).reduce((acc, [currency, data]) => {
+        acc[currency] = data.value;
+        return acc;
+      }, {});
+    } else {
+      totalDealValues.value = {};
+    }
   } catch (err) {
     console.error("Failed to fetch deals:", err);
   } finally {
@@ -142,4 +158,12 @@ watch(dealPage, loadDeals);
 
 // Initial load
 loadDeals();
+
+const formatCurrency = (value, currency) => {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  });
+  return formatter.format(value / 100); // Assuming value is in cents
+};
 </script>
