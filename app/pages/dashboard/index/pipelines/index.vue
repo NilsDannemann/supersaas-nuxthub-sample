@@ -1,7 +1,7 @@
 <template>
   <AppPageContainer 
     title="Pipelines" 
-    :description="`${totalItems} Pipelines found`"
+    :description="`${totalItems} Pipelines`"
   >
     <PipelinesFilter />
     <PipelinesTable 
