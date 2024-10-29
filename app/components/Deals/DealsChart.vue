@@ -53,29 +53,32 @@ const chartData = {
   labels: Object.keys(mockData),
   datasets: [
     {
-      label: 'Open',
-      data: Object.values(mockData).map(d => d.open),
-      backgroundColor: '#94A3B8', // gray-400
+      label: 'Won',
+      data: Object.values(mockData).map(d => d.won),
+      backgroundColor: '#0EA5E9', // sky-500
       stack: 'Stack 0',
-      borderSkipped: false
+      borderSkipped: false,
+      order: 1
     },
     {
       label: 'Lost',
       data: Object.values(mockData).map(d => d.lost),
-      backgroundColor: '#64748B', // gray-500
+      backgroundColor: '#38BDF8', // sky-400
       stack: 'Stack 0',
-      borderSkipped: false
+      borderSkipped: false,
+      order: 2
     },
     {
-      label: 'Won',
-      data: Object.values(mockData).map(d => d.won),
-      backgroundColor: '#0EA5E9', // sky-500 (primary color)
+      label: 'Open',
+      data: Object.values(mockData).map(d => d.open),
+      backgroundColor: '#BAE6FD', // sky-200
       stack: 'Stack 0',
       borderRadius: {
         topLeft: 4,
         topRight: 4
       },
-      borderSkipped: false
+      borderSkipped: false,
+      order: 3
     }
   ]
 };
@@ -93,7 +96,8 @@ const chartOptions = {
     tooltip: {
       enabled: true,
       mode: 'index',
-      intersect: false
+      intersect: false,
+      reverse: true // This ensures tooltip shows Won at top, then Lost, then Open
     }
   },
   scales: {
