@@ -22,7 +22,7 @@
           </a>
         </template>
         <template #value-data="{ row }">
-          {{ formatCurrency(row.value) }}
+          {{ formatCurrency(row.value, row.currency) }}
         </template>
         <template #contact-data="{ row }">
           <a
@@ -136,13 +136,12 @@ const getPipelineTitle = (pipelineId) => {
 const pageFrom = computed(() => ((currentPage.value - 1) * itemsPerPage) + 1);
 const pageTo = computed(() => Math.min(currentPage.value * itemsPerPage, props.totalItems));
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', { 
-    style: 'currency', 
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(value / 100);
+const formatCurrency = (value, currency) => {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  });
+  return formatter.format(value / 100); // Assuming value is in cents
 };
 
 const getStatusLabel = (status) => {
