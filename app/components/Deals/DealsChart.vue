@@ -33,161 +33,204 @@ ChartJS.register(
   LinearScale
 );
 
-// Mock data for each pipeline across all months
+// Mock data for 10 pipelines across all months
 const mockData = {
   'Jan': { 
     sales: { won: 8, lost: 3, open: 5 },
     marketing: { won: 6, lost: 2, open: 4 },
-    partnerships: { won: 7, lost: 2, open: 4 }
+    partnerships: { won: 7, lost: 2, open: 4 },
+    enterprise: { won: 5, lost: 2, open: 3 },
+    smb: { won: 12, lost: 4, open: 6 },
+    retail: { won: 9, lost: 3, open: 5 },
+    wholesale: { won: 7, lost: 2, open: 4 },
+    international: { won: 6, lost: 2, open: 3 },
+    government: { won: 4, lost: 1, open: 2 },
+    education: { won: 8, lost: 3, open: 4 }
   },
   'Feb': { 
     sales: { won: 9, lost: 4, open: 6 },
     marketing: { won: 7, lost: 3, open: 5 },
-    partnerships: { won: 8, lost: 3, open: 5 }
+    partnerships: { won: 8, lost: 3, open: 5 },
+    enterprise: { won: 6, lost: 2, open: 4 },
+    smb: { won: 13, lost: 5, open: 7 },
+    retail: { won: 10, lost: 4, open: 6 },
+    wholesale: { won: 8, lost: 3, open: 5 },
+    international: { won: 7, lost: 3, open: 4 },
+    government: { won: 5, lost: 2, open: 3 },
+    education: { won: 9, lost: 3, open: 5 }
   },
   'Mar': { 
     sales: { won: 10, lost: 3, open: 6 },
     marketing: { won: 8, lost: 2, open: 5 },
-    partnerships: { won: 9, lost: 2, open: 5 }
+    partnerships: { won: 9, lost: 2, open: 5 },
+    enterprise: { won: 7, lost: 2, open: 4 },
+    smb: { won: 14, lost: 5, open: 7 },
+    retail: { won: 11, lost: 4, open: 6 },
+    wholesale: { won: 9, lost: 3, open: 5 },
+    international: { won: 8, lost: 3, open: 4 },
+    government: { won: 6, lost: 2, open: 3 },
+    education: { won: 10, lost: 3, open: 5 }
   },
   'Apr': { 
     sales: { won: 9, lost: 4, open: 5 },
     marketing: { won: 7, lost: 3, open: 4 },
-    partnerships: { won: 8, lost: 3, open: 4 }
+    partnerships: { won: 8, lost: 3, open: 4 },
+    enterprise: { won: 6, lost: 2, open: 3 },
+    smb: { won: 13, lost: 5, open: 6 },
+    retail: { won: 10, lost: 4, open: 5 },
+    wholesale: { won: 8, lost: 3, open: 4 },
+    international: { won: 7, lost: 3, open: 3 },
+    government: { won: 5, lost: 2, open: 2 },
+    education: { won: 9, lost: 3, open: 4 }
   },
   'May': { 
     sales: { won: 11, lost: 4, open: 6 },
     marketing: { won: 9, lost: 3, open: 5 },
-    partnerships: { won: 10, lost: 3, open: 5 }
+    partnerships: { won: 10, lost: 3, open: 5 },
+    enterprise: { won: 8, lost: 3, open: 4 },
+    smb: { won: 15, lost: 5, open: 7 },
+    retail: { won: 12, lost: 4, open: 6 },
+    wholesale: { won: 10, lost: 3, open: 5 },
+    international: { won: 9, lost: 3, open: 4 },
+    government: { won: 7, lost: 2, open: 3 },
+    education: { won: 11, lost: 4, open: 5 }
   },
   'Jun': { 
     sales: { won: 10, lost: 3, open: 5 },
     marketing: { won: 8, lost: 2, open: 4 },
-    partnerships: { won: 9, lost: 2, open: 4 }
+    partnerships: { won: 9, lost: 2, open: 4 },
+    enterprise: { won: 7, lost: 2, open: 3 },
+    smb: { won: 14, lost: 5, open: 6 },
+    retail: { won: 11, lost: 4, open: 5 },
+    wholesale: { won: 9, lost: 3, open: 4 },
+    international: { won: 8, lost: 3, open: 3 },
+    government: { won: 6, lost: 2, open: 2 },
+    education: { won: 10, lost: 3, open: 4 }
   },
   'Jul': { 
     sales: { won: 9, lost: 3, open: 5 },
     marketing: { won: 7, lost: 2, open: 4 },
-    partnerships: { won: 8, lost: 2, open: 4 }
+    partnerships: { won: 8, lost: 2, open: 4 },
+    enterprise: { won: 6, lost: 2, open: 3 },
+    smb: { won: 13, lost: 5, open: 6 },
+    retail: { won: 10, lost: 4, open: 5 },
+    wholesale: { won: 8, lost: 3, open: 4 },
+    international: { won: 7, lost: 3, open: 3 },
+    government: { won: 5, lost: 2, open: 2 },
+    education: { won: 9, lost: 3, open: 4 }
   },
   'Aug': { 
     sales: { won: 12, lost: 4, open: 6 },
     marketing: { won: 10, lost: 3, open: 5 },
-    partnerships: { won: 11, lost: 3, open: 5 }
+    partnerships: { won: 11, lost: 3, open: 5 },
+    enterprise: { won: 9, lost: 3, open: 4 },
+    smb: { won: 16, lost: 5, open: 7 },
+    retail: { won: 13, lost: 4, open: 6 },
+    wholesale: { won: 11, lost: 3, open: 5 },
+    international: { won: 10, lost: 3, open: 4 },
+    government: { won: 8, lost: 2, open: 3 },
+    education: { won: 12, lost: 4, open: 5 }
   },
   'Sep': { 
     sales: { won: 11, lost: 3, open: 5 },
     marketing: { won: 9, lost: 2, open: 4 },
-    partnerships: { won: 10, lost: 2, open: 4 }
+    partnerships: { won: 10, lost: 2, open: 4 },
+    enterprise: { won: 8, lost: 2, open: 3 },
+    smb: { won: 15, lost: 5, open: 6 },
+    retail: { won: 12, lost: 4, open: 5 },
+    wholesale: { won: 10, lost: 3, open: 4 },
+    international: { won: 9, lost: 3, open: 3 },
+    government: { won: 7, lost: 2, open: 2 },
+    education: { won: 11, lost: 4, open: 4 }
   },
   'Oct': { 
     sales: { won: 10, lost: 4, open: 6 },
     marketing: { won: 8, lost: 3, open: 5 },
-    partnerships: { won: 9, lost: 3, open: 5 }
+    partnerships: { won: 9, lost: 3, open: 5 },
+    enterprise: { won: 7, lost: 3, open: 4 },
+    smb: { won: 14, lost: 5, open: 6 },
+    retail: { won: 11, lost: 4, open: 5 },
+    wholesale: { won: 9, lost: 3, open: 4 },
+    international: { won: 8, lost: 3, open: 3 },
+    government: { won: 6, lost: 2, open: 2 },
+    education: { won: 10, lost: 3, open: 4 }
   },
   'Nov': { 
     sales: { won: 9, lost: 3, open: 5 },
     marketing: { won: 7, lost: 2, open: 4 },
-    partnerships: { won: 8, lost: 2, open: 4 }
+    partnerships: { won: 8, lost: 2, open: 4 },
+    enterprise: { won: 6, lost: 2, open: 3 },
+    smb: { won: 13, lost: 5, open: 6 },
+    retail: { won: 10, lost: 4, open: 5 },
+    wholesale: { won: 8, lost: 3, open: 4 },
+    international: { won: 7, lost: 3, open: 3 },
+    government: { won: 5, lost: 2, open: 2 },
+    education: { won: 9, lost: 3, open: 4 }
   },
   'Dec': { 
     sales: { won: 11, lost: 4, open: 6 },
     marketing: { won: 9, lost: 3, open: 5 },
-    partnerships: { won: 10, lost: 3, open: 5 }
+    partnerships: { won: 10, lost: 3, open: 5 },
+    enterprise: { won: 8, lost: 3, open: 4 },
+    smb: { won: 15, lost: 5, open: 8 },
+    retail: { won: 12, lost: 4, open: 6 },
+    wholesale: { won: 10, lost: 3, open: 5 },
+    international: { won: 9, lost: 3, open: 4 },
+    government: { won: 7, lost: 2, open: 3 },
+    education: { won: 11, lost: 4, open: 5 }
   }
 };
 
+// Helper function to create dataset for a pipeline
+const createPipelineDataset = (pipelineName, data, orderOffset) => [
+  {
+    label: `Won (${pipelineName})`,
+    data: Object.values(data).map(d => d[pipelineName.toLowerCase()].won),
+    backgroundColor: '#0EA5E9',
+    stack: pipelineName,
+    borderSkipped: false,
+    order: orderOffset
+  },
+  {
+    label: `Lost (${pipelineName})`,
+    data: Object.values(data).map(d => d[pipelineName.toLowerCase()].lost),
+    backgroundColor: '#38BDF8',
+    stack: pipelineName,
+    borderSkipped: false,
+    order: orderOffset + 1
+  },
+  {
+    label: `Open (${pipelineName})`,
+    data: Object.values(data).map(d => d[pipelineName.toLowerCase()].open),
+    backgroundColor: '#BAE6FD',
+    stack: pipelineName,
+    borderRadius: {
+      topLeft: 4,
+      topRight: 4
+    },
+    borderSkipped: false,
+    order: orderOffset + 2
+  }
+];
+
+const pipelines = [
+  'Sales',
+  'Marketing',
+  'Partnerships',
+  'Enterprise',
+  'SMB',
+  'Retail',
+  'Wholesale',
+  'International',
+  'Government',
+  'Education'
+];
+
 const chartData = {
   labels: Object.keys(mockData),
-  datasets: [
-    // Sales Pipeline
-    {
-      label: 'Won (Sales)',
-      data: Object.values(mockData).map(d => d.sales.won),
-      backgroundColor: '#0EA5E9', // sky-500
-      stack: 'Sales',
-      borderSkipped: false,
-      order: 1
-    },
-    {
-      label: 'Lost (Sales)',
-      data: Object.values(mockData).map(d => d.sales.lost),
-      backgroundColor: '#38BDF8', // sky-400
-      stack: 'Sales',
-      borderSkipped: false,
-      order: 2
-    },
-    {
-      label: 'Open (Sales)',
-      data: Object.values(mockData).map(d => d.sales.open),
-      backgroundColor: '#BAE6FD', // sky-200
-      stack: 'Sales',
-      borderRadius: {
-        topLeft: 4,
-        topRight: 4
-      },
-      borderSkipped: false,
-      order: 3
-    },
-    // Marketing Pipeline
-    {
-      label: 'Won (Marketing)',
-      data: Object.values(mockData).map(d => d.marketing.won),
-      backgroundColor: '#0EA5E9',
-      stack: 'Marketing',
-      borderSkipped: false,
-      order: 4
-    },
-    {
-      label: 'Lost (Marketing)',
-      data: Object.values(mockData).map(d => d.marketing.lost),
-      backgroundColor: '#38BDF8',
-      stack: 'Marketing',
-      borderSkipped: false,
-      order: 5
-    },
-    {
-      label: 'Open (Marketing)',
-      data: Object.values(mockData).map(d => d.marketing.open),
-      backgroundColor: '#BAE6FD',
-      stack: 'Marketing',
-      borderRadius: {
-        topLeft: 4,
-        topRight: 4
-      },
-      borderSkipped: false,
-      order: 6
-    },
-    // Partnerships Pipeline
-    {
-      label: 'Won (Partnerships)',
-      data: Object.values(mockData).map(d => d.partnerships.won),
-      backgroundColor: '#0EA5E9',
-      stack: 'Partnerships',
-      borderSkipped: false,
-      order: 7
-    },
-    {
-      label: 'Lost (Partnerships)',
-      data: Object.values(mockData).map(d => d.partnerships.lost),
-      backgroundColor: '#38BDF8',
-      stack: 'Partnerships',
-      borderSkipped: false,
-      order: 8
-    },
-    {
-      label: 'Open (Partnerships)',
-      data: Object.values(mockData).map(d => d.partnerships.open),
-      backgroundColor: '#BAE6FD',
-      stack: 'Partnerships',
-      borderRadius: {
-        topLeft: 4,
-        topRight: 4
-      },
-      borderSkipped: false,
-      order: 9
-    }
-  ]
+  datasets: pipelines.flatMap((pipeline, index) => 
+    createPipelineDataset(pipeline, mockData, index * 3)
+  )
 };
 
 const chartOptions = {
@@ -215,7 +258,7 @@ const chartOptions = {
           return '';
         },
         label: (context) => {
-          const label = context.dataset.label.split(' ')[0]; // Only get the status (Won/Lost/Open)
+          const label = context.dataset.label.split(' ')[0];
           return `${label}: ${context.parsed.y}`;
         }
       }
@@ -230,7 +273,7 @@ const chartOptions = {
       beginAtZero: true
     }
   },
-  barPercentage: 0.7,
-  categoryPercentage: 0.8
+  barPercentage: 0.9,
+  categoryPercentage: 0.9
 };
 </script>
