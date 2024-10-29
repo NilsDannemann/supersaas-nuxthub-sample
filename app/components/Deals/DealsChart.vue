@@ -33,65 +33,95 @@ ChartJS.register(
   LinearScale
 );
 
-// Mock data with three years and more consistent numbers
+// Mock data for each pipeline across all months
 const mockData = {
   'Jan': { 
-    current: { won: 10, lost: 4, open: 6 },
-    previous: { won: 9, lost: 4, open: 5 },
-    year3: { won: 8, lost: 3, open: 5 }
+    sales: { won: 8, lost: 3, open: 5 },
+    marketing: { won: 6, lost: 2, open: 4 },
+    partnerships: { won: 7, lost: 2, open: 4 }
   },
   'Feb': { 
-    current: { won: 11, lost: 5, open: 7 },
-    previous: { won: 10, lost: 4, open: 6 },
-    year3: { won: 9, lost: 4, open: 6 }
+    sales: { won: 9, lost: 4, open: 6 },
+    marketing: { won: 7, lost: 3, open: 5 },
+    partnerships: { won: 8, lost: 3, open: 5 }
   },
   'Mar': { 
-    current: { won: 12, lost: 4, open: 8 },
-    previous: { won: 11, lost: 4, open: 7 },
-    year3: { won: 10, lost: 3, open: 6 }
+    sales: { won: 10, lost: 3, open: 6 },
+    marketing: { won: 8, lost: 2, open: 5 },
+    partnerships: { won: 9, lost: 2, open: 5 }
   },
   'Apr': { 
-    current: { won: 11, lost: 5, open: 7 },
-    previous: { won: 10, lost: 4, open: 6 },
-    year3: { won: 9, lost: 4, open: 5 }
+    sales: { won: 9, lost: 4, open: 5 },
+    marketing: { won: 7, lost: 3, open: 4 },
+    partnerships: { won: 8, lost: 3, open: 4 }
   },
   'May': { 
-    current: { won: 13, lost: 5, open: 8 },
-    previous: { won: 12, lost: 4, open: 7 },
-    year3: { won: 11, lost: 4, open: 6 }
+    sales: { won: 11, lost: 4, open: 6 },
+    marketing: { won: 9, lost: 3, open: 5 },
+    partnerships: { won: 10, lost: 3, open: 5 }
   },
   'Jun': { 
-    current: { won: 12, lost: 4, open: 7 },
-    previous: { won: 11, lost: 4, open: 6 },
-    year3: { won: 10, lost: 3, open: 5 }
+    sales: { won: 10, lost: 3, open: 5 },
+    marketing: { won: 8, lost: 2, open: 4 },
+    partnerships: { won: 9, lost: 2, open: 4 }
+  },
+  'Jul': { 
+    sales: { won: 9, lost: 3, open: 5 },
+    marketing: { won: 7, lost: 2, open: 4 },
+    partnerships: { won: 8, lost: 2, open: 4 }
+  },
+  'Aug': { 
+    sales: { won: 12, lost: 4, open: 6 },
+    marketing: { won: 10, lost: 3, open: 5 },
+    partnerships: { won: 11, lost: 3, open: 5 }
+  },
+  'Sep': { 
+    sales: { won: 11, lost: 3, open: 5 },
+    marketing: { won: 9, lost: 2, open: 4 },
+    partnerships: { won: 10, lost: 2, open: 4 }
+  },
+  'Oct': { 
+    sales: { won: 10, lost: 4, open: 6 },
+    marketing: { won: 8, lost: 3, open: 5 },
+    partnerships: { won: 9, lost: 3, open: 5 }
+  },
+  'Nov': { 
+    sales: { won: 9, lost: 3, open: 5 },
+    marketing: { won: 7, lost: 2, open: 4 },
+    partnerships: { won: 8, lost: 2, open: 4 }
+  },
+  'Dec': { 
+    sales: { won: 11, lost: 4, open: 6 },
+    marketing: { won: 9, lost: 3, open: 5 },
+    partnerships: { won: 10, lost: 3, open: 5 }
   }
 };
 
 const chartData = {
   labels: Object.keys(mockData),
   datasets: [
-    // Current Year
+    // Sales Pipeline
     {
-      label: 'Won (2024)',
-      data: Object.values(mockData).map(d => d.current.won),
+      label: 'Won (Sales)',
+      data: Object.values(mockData).map(d => d.sales.won),
       backgroundColor: '#0EA5E9', // sky-500
-      stack: 'Stack 1',
+      stack: 'Sales',
       borderSkipped: false,
       order: 1
     },
     {
-      label: 'Lost (2024)',
-      data: Object.values(mockData).map(d => d.current.lost),
+      label: 'Lost (Sales)',
+      data: Object.values(mockData).map(d => d.sales.lost),
       backgroundColor: '#38BDF8', // sky-400
-      stack: 'Stack 1',
+      stack: 'Sales',
       borderSkipped: false,
       order: 2
     },
     {
-      label: 'Open (2024)',
-      data: Object.values(mockData).map(d => d.current.open),
+      label: 'Open (Sales)',
+      data: Object.values(mockData).map(d => d.sales.open),
       backgroundColor: '#BAE6FD', // sky-200
-      stack: 'Stack 1',
+      stack: 'Sales',
       borderRadius: {
         topLeft: 4,
         topRight: 4
@@ -99,28 +129,28 @@ const chartData = {
       borderSkipped: false,
       order: 3
     },
-    // Previous Year
+    // Marketing Pipeline
     {
-      label: 'Won (2023)',
-      data: Object.values(mockData).map(d => d.previous.won),
-      backgroundColor: '#0EA5E9', // sky-500
-      stack: 'Stack 2',
+      label: 'Won (Marketing)',
+      data: Object.values(mockData).map(d => d.marketing.won),
+      backgroundColor: '#0EA5E9',
+      stack: 'Marketing',
       borderSkipped: false,
       order: 4
     },
     {
-      label: 'Lost (2023)',
-      data: Object.values(mockData).map(d => d.previous.lost),
-      backgroundColor: '#38BDF8', // sky-400
-      stack: 'Stack 2',
+      label: 'Lost (Marketing)',
+      data: Object.values(mockData).map(d => d.marketing.lost),
+      backgroundColor: '#38BDF8',
+      stack: 'Marketing',
       borderSkipped: false,
       order: 5
     },
     {
-      label: 'Open (2023)',
-      data: Object.values(mockData).map(d => d.previous.open),
-      backgroundColor: '#BAE6FD', // sky-200
-      stack: 'Stack 2',
+      label: 'Open (Marketing)',
+      data: Object.values(mockData).map(d => d.marketing.open),
+      backgroundColor: '#BAE6FD',
+      stack: 'Marketing',
       borderRadius: {
         topLeft: 4,
         topRight: 4
@@ -128,28 +158,28 @@ const chartData = {
       borderSkipped: false,
       order: 6
     },
-    // Year 3
+    // Partnerships Pipeline
     {
-      label: 'Won (2022)',
-      data: Object.values(mockData).map(d => d.year3.won),
-      backgroundColor: '#0EA5E9', // sky-500
-      stack: 'Stack 3',
+      label: 'Won (Partnerships)',
+      data: Object.values(mockData).map(d => d.partnerships.won),
+      backgroundColor: '#0EA5E9',
+      stack: 'Partnerships',
       borderSkipped: false,
       order: 7
     },
     {
-      label: 'Lost (2022)',
-      data: Object.values(mockData).map(d => d.year3.lost),
-      backgroundColor: '#38BDF8', // sky-400
-      stack: 'Stack 3',
+      label: 'Lost (Partnerships)',
+      data: Object.values(mockData).map(d => d.partnerships.lost),
+      backgroundColor: '#38BDF8',
+      stack: 'Partnerships',
       borderSkipped: false,
       order: 8
     },
     {
-      label: 'Open (2022)',
-      data: Object.values(mockData).map(d => d.year3.open),
-      backgroundColor: '#BAE6FD', // sky-200
-      stack: 'Stack 3',
+      label: 'Open (Partnerships)',
+      data: Object.values(mockData).map(d => d.partnerships.open),
+      backgroundColor: '#BAE6FD',
+      stack: 'Partnerships',
       borderRadius: {
         topLeft: 4,
         topRight: 4
@@ -186,7 +216,7 @@ const chartOptions = {
       beginAtZero: true
     }
   },
-  barPercentage: 0.7, // Made slightly thinner to accommodate three bars
-  categoryPercentage: 0.8, // Keeps good spacing between month groups
+  barPercentage: 0.7,
+  categoryPercentage: 0.8
 };
 </script>
