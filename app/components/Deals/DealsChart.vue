@@ -33,52 +33,129 @@ ChartJS.register(
   LinearScale
 );
 
-// Mock data for deals per month
+// Mock data with three years and more consistent numbers
 const mockData = {
-  'Jan': { won: 12, lost: 5, open: 8 },
-  'Feb': { won: 15, lost: 7, open: 10 },
-  'Mar': { won: 18, lost: 4, open: 12 },
-  'Apr': { won: 14, lost: 6, open: 9 },
-  'May': { won: 20, lost: 8, open: 15 },
-  'Jun': { won: 22, lost: 5, open: 11 },
-  'Jul': { won: 17, lost: 9, open: 13 },
-  'Aug': { won: 25, lost: 7, open: 16 },
-  'Sep': { won: 19, lost: 6, open: 14 },
-  'Oct': { won: 21, lost: 8, open: 12 },
-  'Nov': { won: 16, lost: 5, open: 10 },
-  'Dec': { won: 23, lost: 7, open: 15 }
+  'Jan': { 
+    current: { won: 10, lost: 4, open: 6 },
+    previous: { won: 9, lost: 4, open: 5 },
+    year3: { won: 8, lost: 3, open: 5 }
+  },
+  'Feb': { 
+    current: { won: 11, lost: 5, open: 7 },
+    previous: { won: 10, lost: 4, open: 6 },
+    year3: { won: 9, lost: 4, open: 6 }
+  },
+  'Mar': { 
+    current: { won: 12, lost: 4, open: 8 },
+    previous: { won: 11, lost: 4, open: 7 },
+    year3: { won: 10, lost: 3, open: 6 }
+  },
+  'Apr': { 
+    current: { won: 11, lost: 5, open: 7 },
+    previous: { won: 10, lost: 4, open: 6 },
+    year3: { won: 9, lost: 4, open: 5 }
+  },
+  'May': { 
+    current: { won: 13, lost: 5, open: 8 },
+    previous: { won: 12, lost: 4, open: 7 },
+    year3: { won: 11, lost: 4, open: 6 }
+  },
+  'Jun': { 
+    current: { won: 12, lost: 4, open: 7 },
+    previous: { won: 11, lost: 4, open: 6 },
+    year3: { won: 10, lost: 3, open: 5 }
+  }
 };
 
 const chartData = {
   labels: Object.keys(mockData),
   datasets: [
+    // Current Year
     {
-      label: 'Won',
-      data: Object.values(mockData).map(d => d.won),
+      label: 'Won (2024)',
+      data: Object.values(mockData).map(d => d.current.won),
       backgroundColor: '#0EA5E9', // sky-500
-      stack: 'Stack 0',
+      stack: 'Stack 1',
       borderSkipped: false,
       order: 1
     },
     {
-      label: 'Lost',
-      data: Object.values(mockData).map(d => d.lost),
+      label: 'Lost (2024)',
+      data: Object.values(mockData).map(d => d.current.lost),
       backgroundColor: '#38BDF8', // sky-400
-      stack: 'Stack 0',
+      stack: 'Stack 1',
       borderSkipped: false,
       order: 2
     },
     {
-      label: 'Open',
-      data: Object.values(mockData).map(d => d.open),
+      label: 'Open (2024)',
+      data: Object.values(mockData).map(d => d.current.open),
       backgroundColor: '#BAE6FD', // sky-200
-      stack: 'Stack 0',
+      stack: 'Stack 1',
       borderRadius: {
         topLeft: 4,
         topRight: 4
       },
       borderSkipped: false,
       order: 3
+    },
+    // Previous Year
+    {
+      label: 'Won (2023)',
+      data: Object.values(mockData).map(d => d.previous.won),
+      backgroundColor: '#0EA5E9', // sky-500
+      stack: 'Stack 2',
+      borderSkipped: false,
+      order: 4
+    },
+    {
+      label: 'Lost (2023)',
+      data: Object.values(mockData).map(d => d.previous.lost),
+      backgroundColor: '#38BDF8', // sky-400
+      stack: 'Stack 2',
+      borderSkipped: false,
+      order: 5
+    },
+    {
+      label: 'Open (2023)',
+      data: Object.values(mockData).map(d => d.previous.open),
+      backgroundColor: '#BAE6FD', // sky-200
+      stack: 'Stack 2',
+      borderRadius: {
+        topLeft: 4,
+        topRight: 4
+      },
+      borderSkipped: false,
+      order: 6
+    },
+    // Year 3
+    {
+      label: 'Won (2022)',
+      data: Object.values(mockData).map(d => d.year3.won),
+      backgroundColor: '#0EA5E9', // sky-500
+      stack: 'Stack 3',
+      borderSkipped: false,
+      order: 7
+    },
+    {
+      label: 'Lost (2022)',
+      data: Object.values(mockData).map(d => d.year3.lost),
+      backgroundColor: '#38BDF8', // sky-400
+      stack: 'Stack 3',
+      borderSkipped: false,
+      order: 8
+    },
+    {
+      label: 'Open (2022)',
+      data: Object.values(mockData).map(d => d.year3.open),
+      backgroundColor: '#BAE6FD', // sky-200
+      stack: 'Stack 3',
+      borderRadius: {
+        topLeft: 4,
+        topRight: 4
+      },
+      borderSkipped: false,
+      order: 9
     }
   ]
 };
@@ -97,7 +174,7 @@ const chartOptions = {
       enabled: true,
       mode: 'index',
       intersect: false,
-      reverse: true // This ensures tooltip shows Won at top, then Lost, then Open
+      reverse: true
     }
   },
   scales: {
@@ -109,7 +186,7 @@ const chartOptions = {
       beginAtZero: true
     }
   },
-  barPercentage: 0.6,
-  categoryPercentage: 0.8
+  barPercentage: 0.7, // Made slightly thinner to accommodate three bars
+  categoryPercentage: 0.8, // Keeps good spacing between month groups
 };
 </script>
