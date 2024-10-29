@@ -5,7 +5,7 @@
     <div class="flex h-12 px-6">
       <NuxtLink to="/dashboard" class="flex items-center gap-2 font-semibold">
         <img src="/logo.png" class="h-6 w-auto" />
-        <span class="">Admin</span>
+        <span class="">CRM Prism Admin</span>
       </NuxtLink>
     </div>
     <div class="flex flex-col w-full flex-1 relative overflow-hidden">
@@ -38,7 +38,7 @@
             class="flex items-center gap-2 font-semibold"
           >
             <img src="/logo.png" class="h-6 w-auto" />
-            <span class="">Admin</span>
+            <span class="">CRM Prism Admin</span>
           </NuxtLink>
           <UButton
             icon="i-ph-x"

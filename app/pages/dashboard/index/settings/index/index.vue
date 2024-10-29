@@ -1,7 +1,8 @@
 <template>
   <div class="space-y-8">
-    <AppSettingsUpdateProfile :user />
+    <AppSettingsUpdateProfile :user="user" />
     <AppSettingsUpdatePassword />
+    <AppSettingsUpdateKeys />
     <AppSettingsManagePasskey />
     <AppSettingsManageLinkedAccounts />
   </div>

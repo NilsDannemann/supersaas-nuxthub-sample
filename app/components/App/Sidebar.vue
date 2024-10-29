@@ -5,7 +5,7 @@
     <div class="flex h-12 px-6">
       <NuxtLink to="/dashboard" class="flex items-center gap-2 font-semibold">
         <img src="/logo.png" class="h-6 w-auto" />
-        <span class="">microbot</span>
+        <span class="">CRM Prism</span>
       </NuxtLink>
     </div>
     <div class="flex flex-col w-full flex-1 relative overflow-hidden">
@@ -38,7 +38,7 @@
             class="flex items-center gap-2 font-semibold"
           >
             <img src="/logo.png" class="h-6 w-auto" />
-            <span class="">microbot</span>
+            <span class="">CRM Prism</span>
           </NuxtLink>
           <UButton
             icon="i-ph-x"
@@ -81,20 +81,18 @@ const links = [
     click: () => (mobileSidebar.value = false),
   },
   {
-    label: "Posts",
-    to: "/dashboard/posts",
-    icon: "i-ph-note-duotone",
-    badge: "Demo",
-    exact: true,
+    label: "Deals",
+    icon: "i-ph-chart-bar-duotone",
+    to: "/dashboard/deals",
     click: () => (mobileSidebar.value = false),
+    badge: "AC"
   },
   {
-    label: "Image Gallery",
-    to: "/dashboard/image-gallery",
-    icon: "i-ph-images-duotone",
-    badge: "Demo",
-    exact: true,
+    label: "Pipelines",
+    icon: "i-ph-git-fork-duotone",
+    to: "/dashboard/pipelines",
     click: () => (mobileSidebar.value = false),
+    badge: "AC"
   },
   {
     label: "Settings",

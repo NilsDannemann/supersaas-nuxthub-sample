@@ -68,6 +68,23 @@ export const credentials = sqliteTable("credentials", {
   ),
 });
 
+export const apiKeys = sqliteTable("api_keys", {
+  id: text("id")
+    .primaryKey()
+    .$default(() => nanoid()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  activeCampaignAccountUrl: text("active_campaign_account_url").notNull(),
+  activeCampaignAccountKey: text("active_campaign_account_key").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).$default(
+    () => new Date(),
+  ),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
 export const oauthAccounts = sqliteTable(
   "oauth_accounts",
   {
@@ -211,3 +228,5 @@ export type InsertOneTimePassword = typeof oneTimePasswords.$inferInsert;
 export type SelectPost = typeof posts.$inferSelect;
 export type InsertPost = typeof posts.$inferInsert;
 export type OneTimePassword = keyof typeof OneTimePasswordTypes;
+export type SelectApiKey = typeof apiKeys.$inferSelect;
+export type InsertApiKey = typeof apiKeys.$inferInsert;
