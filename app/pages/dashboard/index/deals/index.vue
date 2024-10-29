@@ -31,6 +31,7 @@
       </div>
     </template>
     <DealsFilter @filter="handleFilter" />
+    <DealsChart />
     <DealsTable 
       :deals="deals"
       :loading="dealsLoading"
@@ -45,6 +46,7 @@
 import { ref, watch, computed } from 'vue';
 import DealsFilter from '~/components/Deals/DealsFilter.vue';
 import DealsTable from '~/components/Deals/DealsTable.vue';
+import DealsChart from '~/components/Deals/DealsChart.vue';
 
 const deals = ref([]);
 const totalItems = ref(0);
