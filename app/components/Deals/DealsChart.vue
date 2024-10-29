@@ -53,22 +53,29 @@ const chartData = {
   labels: Object.keys(mockData),
   datasets: [
     {
-      label: 'Won',
-      data: Object.values(mockData).map(d => d.won),
-      backgroundColor: 'rgb(34, 197, 94)', // green-500
+      label: 'Open',
+      data: Object.values(mockData).map(d => d.open),
+      backgroundColor: '#94A3B8', // gray-400
       stack: 'Stack 0',
+      borderSkipped: false
     },
     {
       label: 'Lost',
       data: Object.values(mockData).map(d => d.lost),
-      backgroundColor: 'rgb(239, 68, 68)', // red-500
+      backgroundColor: '#64748B', // gray-500
       stack: 'Stack 0',
+      borderSkipped: false
     },
     {
-      label: 'Open',
-      data: Object.values(mockData).map(d => d.open),
-      backgroundColor: 'rgb(59, 130, 246)', // blue-500
+      label: 'Won',
+      data: Object.values(mockData).map(d => d.won),
+      backgroundColor: '#0EA5E9', // sky-500 (primary color)
       stack: 'Stack 0',
+      borderRadius: {
+        topLeft: 4,
+        topRight: 4
+      },
+      borderSkipped: false
     }
   ]
 };
@@ -78,15 +85,15 @@ const chartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'top',
-      labels: {
-        usePointStyle: true,
-        pointStyle: 'circle',
-      }
+      display: false
     },
     title: {
-      display: true,
-      text: 'Deals by Month'
+      display: false
+    },
+    tooltip: {
+      enabled: true,
+      mode: 'index',
+      intersect: false
     }
   },
   scales: {
@@ -97,6 +104,8 @@ const chartOptions = {
       stacked: true,
       beginAtZero: true
     }
-  }
+  },
+  barPercentage: 0.6,
+  categoryPercentage: 0.8
 };
 </script>
