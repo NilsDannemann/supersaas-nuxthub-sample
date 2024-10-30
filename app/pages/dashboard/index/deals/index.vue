@@ -41,6 +41,7 @@
       :loading="dealsLoading"
       :totalItems="totalItems"
       :baseUrlActiveCampaign="baseUrlActiveCampaign"
+      @update:page="handlePageChange"
     />
   </AppPageContainer>
 </template>
@@ -170,5 +171,10 @@ const formatCurrency = (value, currency) => {
     currency: currency.toUpperCase(),
   });
   return formatter.format(value / 100); // Assuming value is in cents
+};
+
+const handlePageChange = (newPage) => {
+  dealPage.value = newPage;
+  loadDeals(); // This will trigger a data refresh with the new page
 };
 </script>
