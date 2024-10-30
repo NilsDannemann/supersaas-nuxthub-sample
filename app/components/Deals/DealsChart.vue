@@ -1,5 +1,13 @@
 <template>
   <div class="border border-gray-200 dark:border-white/10 rounded-lg mb-4">
+    <div class="p-4 border-b border-gray-200 dark:border-white/10">
+      <USelect
+        v-model="selectedMetric"
+        :options="metricOptions"
+        size="sm"
+        class="w-48"
+      />
+    </div>
     <div class="p-8">
       <Bar 
         v-if="chartData" 
@@ -33,207 +41,116 @@ ChartJS.register(
   LinearScale
 );
 
-// Mock data for 10 pipelines across all months
+const selectedMetric = ref('number');
+const metricOptions = [
+  { label: 'Number', value: 'number' },
+  { label: 'Value', value: 'value' }
+];
+
+// Updated mock data for full year
 const mockData = {
   'Jan': { 
-    sales: { won: 8, lost: 3, open: 5 },
-    marketing: { won: 6, lost: 2, open: 4 },
-    partnerships: { won: 7, lost: 2, open: 4 },
-    enterprise: { won: 5, lost: 2, open: 3 },
-    smb: { won: 12, lost: 4, open: 6 },
-    retail: { won: 9, lost: 3, open: 5 },
-    wholesale: { won: 7, lost: 2, open: 4 },
-    international: { won: 6, lost: 2, open: 3 },
-    government: { won: 4, lost: 1, open: 2 },
-    education: { won: 8, lost: 3, open: 4 }
+    sales: { won: 8, lost: 3, open: 5, valueWon: 50000, valueLost: 20000, valueOpen: 10000 },
+    marketing: { won: 6, lost: 2, open: 4, valueWon: 40000, valueLost: 15000, valueOpen: 5000 },
+    partnerships: { won: 7, lost: 2, open: 4, valueWon: 45000, valueLost: 15000, valueOpen: 10000 }
   },
   'Feb': { 
-    sales: { won: 9, lost: 4, open: 6 },
-    marketing: { won: 7, lost: 3, open: 5 },
-    partnerships: { won: 8, lost: 3, open: 5 },
-    enterprise: { won: 6, lost: 2, open: 4 },
-    smb: { won: 13, lost: 5, open: 7 },
-    retail: { won: 10, lost: 4, open: 6 },
-    wholesale: { won: 8, lost: 3, open: 5 },
-    international: { won: 7, lost: 3, open: 4 },
-    government: { won: 5, lost: 2, open: 3 },
-    education: { won: 9, lost: 3, open: 5 }
+    sales: { won: 9, lost: 4, open: 6, valueWon: 60000, valueLost: 20000, valueOpen: 10000 },
+    marketing: { won: 7, lost: 3, open: 5, valueWon: 45000, valueLost: 15000, valueOpen: 10000 },
+    partnerships: { won: 8, lost: 3, open: 5, valueWon: 50000, valueLost: 20000, valueOpen: 10000 }
   },
-  'Mar': { 
-    sales: { won: 10, lost: 3, open: 6 },
-    marketing: { won: 8, lost: 2, open: 5 },
-    partnerships: { won: 9, lost: 2, open: 5 },
-    enterprise: { won: 7, lost: 2, open: 4 },
-    smb: { won: 14, lost: 5, open: 7 },
-    retail: { won: 11, lost: 4, open: 6 },
-    wholesale: { won: 9, lost: 3, open: 5 },
-    international: { won: 8, lost: 3, open: 4 },
-    government: { won: 6, lost: 2, open: 3 },
-    education: { won: 10, lost: 3, open: 5 }
+  'Mar': {
+    sales: { won: 10, lost: 3, open: 4, valueWon: 65000, valueLost: 18000, valueOpen: 12000 },
+    marketing: { won: 8, lost: 2, open: 6, valueWon: 48000, valueLost: 16000, valueOpen: 8000 },
+    partnerships: { won: 9, lost: 4, open: 3, valueWon: 55000, valueLost: 22000, valueOpen: 9000 }
   },
-  'Apr': { 
-    sales: { won: 9, lost: 4, open: 5 },
-    marketing: { won: 7, lost: 3, open: 4 },
-    partnerships: { won: 8, lost: 3, open: 4 },
-    enterprise: { won: 6, lost: 2, open: 3 },
-    smb: { won: 13, lost: 5, open: 6 },
-    retail: { won: 10, lost: 4, open: 5 },
-    wholesale: { won: 8, lost: 3, open: 4 },
-    international: { won: 7, lost: 3, open: 3 },
-    government: { won: 5, lost: 2, open: 2 },
-    education: { won: 9, lost: 3, open: 4 }
+  'Apr': {
+    sales: { won: 11, lost: 4, open: 5, valueWon: 70000, valueLost: 25000, valueOpen: 15000 },
+    marketing: { won: 9, lost: 3, open: 4, valueWon: 52000, valueLost: 18000, valueOpen: 7000 },
+    partnerships: { won: 8, lost: 2, open: 6, valueWon: 48000, valueLost: 16000, valueOpen: 11000 }
   },
-  'May': { 
-    sales: { won: 11, lost: 4, open: 6 },
-    marketing: { won: 9, lost: 3, open: 5 },
-    partnerships: { won: 10, lost: 3, open: 5 },
-    enterprise: { won: 8, lost: 3, open: 4 },
-    smb: { won: 15, lost: 5, open: 7 },
-    retail: { won: 12, lost: 4, open: 6 },
-    wholesale: { won: 10, lost: 3, open: 5 },
-    international: { won: 9, lost: 3, open: 4 },
-    government: { won: 7, lost: 2, open: 3 },
-    education: { won: 11, lost: 4, open: 5 }
+  'May': {
+    sales: { won: 12, lost: 3, open: 6, valueWon: 75000, valueLost: 22000, valueOpen: 13000 },
+    marketing: { won: 10, lost: 4, open: 3, valueWon: 58000, valueLost: 20000, valueOpen: 9000 },
+    partnerships: { won: 9, lost: 3, open: 5, valueWon: 54000, valueLost: 19000, valueOpen: 12000 }
   },
-  'Jun': { 
-    sales: { won: 10, lost: 3, open: 5 },
-    marketing: { won: 8, lost: 2, open: 4 },
-    partnerships: { won: 9, lost: 2, open: 4 },
-    enterprise: { won: 7, lost: 2, open: 3 },
-    smb: { won: 14, lost: 5, open: 6 },
-    retail: { won: 11, lost: 4, open: 5 },
-    wholesale: { won: 9, lost: 3, open: 4 },
-    international: { won: 8, lost: 3, open: 3 },
-    government: { won: 6, lost: 2, open: 2 },
-    education: { won: 10, lost: 3, open: 4 }
+  'Jun': {
+    sales: { won: 10, lost: 5, open: 4, valueWon: 68000, valueLost: 28000, valueOpen: 11000 },
+    marketing: { won: 8, lost: 3, open: 5, valueWon: 50000, valueLost: 17000, valueOpen: 10000 },
+    partnerships: { won: 11, lost: 2, open: 4, valueWon: 62000, valueLost: 15000, valueOpen: 8000 }
   },
-  'Jul': { 
-    sales: { won: 9, lost: 3, open: 5 },
-    marketing: { won: 7, lost: 2, open: 4 },
-    partnerships: { won: 8, lost: 2, open: 4 },
-    enterprise: { won: 6, lost: 2, open: 3 },
-    smb: { won: 13, lost: 5, open: 6 },
-    retail: { won: 10, lost: 4, open: 5 },
-    wholesale: { won: 8, lost: 3, open: 4 },
-    international: { won: 7, lost: 3, open: 3 },
-    government: { won: 5, lost: 2, open: 2 },
-    education: { won: 9, lost: 3, open: 4 }
+  'Jul': {
+    sales: { won: 13, lost: 4, open: 5, valueWon: 80000, valueLost: 24000, valueOpen: 14000 },
+    marketing: { won: 11, lost: 3, open: 4, valueWon: 65000, valueLost: 19000, valueOpen: 8000 },
+    partnerships: { won: 10, lost: 4, open: 6, valueWon: 58000, valueLost: 21000, valueOpen: 13000 }
   },
-  'Aug': { 
-    sales: { won: 12, lost: 4, open: 6 },
-    marketing: { won: 10, lost: 3, open: 5 },
-    partnerships: { won: 11, lost: 3, open: 5 },
-    enterprise: { won: 9, lost: 3, open: 4 },
-    smb: { won: 16, lost: 5, open: 7 },
-    retail: { won: 13, lost: 4, open: 6 },
-    wholesale: { won: 11, lost: 3, open: 5 },
-    international: { won: 10, lost: 3, open: 4 },
-    government: { won: 8, lost: 2, open: 3 },
-    education: { won: 12, lost: 4, open: 5 }
+  'Aug': {
+    sales: { won: 12, lost: 3, open: 6, valueWon: 72000, valueLost: 20000, valueOpen: 15000 },
+    marketing: { won: 9, lost: 4, open: 5, valueWon: 54000, valueLost: 22000, valueOpen: 11000 },
+    partnerships: { won: 11, lost: 3, open: 4, valueWon: 64000, valueLost: 18000, valueOpen: 9000 }
   },
-  'Sep': { 
-    sales: { won: 11, lost: 3, open: 5 },
-    marketing: { won: 9, lost: 2, open: 4 },
-    partnerships: { won: 10, lost: 2, open: 4 },
-    enterprise: { won: 8, lost: 2, open: 3 },
-    smb: { won: 15, lost: 5, open: 6 },
-    retail: { won: 12, lost: 4, open: 5 },
-    wholesale: { won: 10, lost: 3, open: 4 },
-    international: { won: 9, lost: 3, open: 3 },
-    government: { won: 7, lost: 2, open: 2 },
-    education: { won: 11, lost: 4, open: 4 }
+  'Sep': {
+    sales: { won: 14, lost: 4, open: 5, valueWon: 85000, valueLost: 26000, valueOpen: 12000 },
+    marketing: { won: 12, lost: 3, open: 4, valueWon: 70000, valueLost: 21000, valueOpen: 10000 },
+    partnerships: { won: 10, lost: 5, open: 6, valueWon: 60000, valueLost: 24000, valueOpen: 14000 }
   },
-  'Oct': { 
-    sales: { won: 10, lost: 4, open: 6 },
-    marketing: { won: 8, lost: 3, open: 5 },
-    partnerships: { won: 9, lost: 3, open: 5 },
-    enterprise: { won: 7, lost: 3, open: 4 },
-    smb: { won: 14, lost: 5, open: 6 },
-    retail: { won: 11, lost: 4, open: 5 },
-    wholesale: { won: 9, lost: 3, open: 4 },
-    international: { won: 8, lost: 3, open: 3 },
-    government: { won: 6, lost: 2, open: 2 },
-    education: { won: 10, lost: 3, open: 4 }
+  'Oct': {
+    sales: { won: 15, lost: 3, open: 6, valueWon: 90000, valueLost: 23000, valueOpen: 16000 },
+    marketing: { won: 13, lost: 4, open: 5, valueWon: 75000, valueLost: 24000, valueOpen: 12000 },
+    partnerships: { won: 12, lost: 3, open: 4, valueWon: 68000, valueLost: 20000, valueOpen: 10000 }
   },
-  'Nov': { 
-    sales: { won: 9, lost: 3, open: 5 },
-    marketing: { won: 7, lost: 2, open: 4 },
-    partnerships: { won: 8, lost: 2, open: 4 },
-    enterprise: { won: 6, lost: 2, open: 3 },
-    smb: { won: 13, lost: 5, open: 6 },
-    retail: { won: 10, lost: 4, open: 5 },
-    wholesale: { won: 8, lost: 3, open: 4 },
-    international: { won: 7, lost: 3, open: 3 },
-    government: { won: 5, lost: 2, open: 2 },
-    education: { won: 9, lost: 3, open: 4 }
+  'Nov': {
+    sales: { won: 13, lost: 5, open: 4, valueWon: 82000, valueLost: 28000, valueOpen: 13000 },
+    marketing: { won: 11, lost: 3, open: 6, valueWon: 66000, valueLost: 19000, valueOpen: 14000 },
+    partnerships: { won: 14, lost: 4, open: 5, valueWon: 78000, valueLost: 23000, valueOpen: 11000 }
   },
-  'Dec': { 
-    sales: { won: 11, lost: 4, open: 6 },
-    marketing: { won: 9, lost: 3, open: 5 },
-    partnerships: { won: 10, lost: 3, open: 5 },
-    enterprise: { won: 8, lost: 3, open: 4 },
-    smb: { won: 15, lost: 5, open: 8 },
-    retail: { won: 12, lost: 4, open: 6 },
-    wholesale: { won: 10, lost: 3, open: 5 },
-    international: { won: 9, lost: 3, open: 4 },
-    government: { won: 7, lost: 2, open: 3 },
-    education: { won: 11, lost: 4, open: 5 }
+  'Dec': {
+    sales: { won: 16, lost: 4, open: 5, valueWon: 95000, valueLost: 25000, valueOpen: 15000 },
+    marketing: { won: 14, lost: 3, open: 4, valueWon: 80000, valueLost: 20000, valueOpen: 11000 },
+    partnerships: { won: 13, lost: 4, open: 6, valueWon: 72000, valueLost: 22000, valueOpen: 13000 }
   }
 };
-
-// Helper function to create dataset for a pipeline
-const createPipelineDataset = (pipelineName, data, orderOffset) => [
-  {
-    label: `Won (${pipelineName})`,
-    data: Object.values(data).map(d => d[pipelineName.toLowerCase()].won),
-    backgroundColor: '#0EA5E9',
-    stack: pipelineName,
-    borderSkipped: false,
-    order: orderOffset
-  },
-  {
-    label: `Lost (${pipelineName})`,
-    data: Object.values(data).map(d => d[pipelineName.toLowerCase()].lost),
-    backgroundColor: '#38BDF8',
-    stack: pipelineName,
-    borderSkipped: false,
-    order: orderOffset + 1
-  },
-  {
-    label: `Open (${pipelineName})`,
-    data: Object.values(data).map(d => d[pipelineName.toLowerCase()].open),
-    backgroundColor: '#BAE6FD',
-    stack: pipelineName,
-    borderRadius: {
-      topLeft: 4,
-      topRight: 4
-    },
-    borderSkipped: false,
-    order: orderOffset + 2
-  }
-];
 
 const pipelines = [
   'Sales',
   'Marketing',
-  'Partnerships',
-  'Enterprise',
-  'SMB',
-  'Retail',
-  'Wholesale',
-  'International',
-  'Government',
-  'Education'
+  'Partnerships'
 ];
 
-const chartData = {
-  labels: Object.keys(mockData),
-  datasets: pipelines.flatMap((pipeline, index) => 
-    createPipelineDataset(pipeline, mockData, index * 3)
-  )
+// Modified helper function to handle both metrics with consistent separation
+const createPipelineDataset = (pipelineName, data, orderOffset) => {
+  const isNumber = selectedMetric.value === 'number';
+  const metrics = isNumber 
+    ? ['won', 'lost', 'open']
+    : ['valueWon', 'valueLost', 'valueOpen'];
+  
+  const colors = ['#0EA5E9', '#38BDF8', '#BAE6FD'];
+  const labels = ['Won', 'Lost', 'Open'];
+
+  return metrics.map((metric, index) => ({
+    label: `${labels[index]} (${pipelineName})`,
+    data: Object.values(data).map(d => d[pipelineName.toLowerCase()][metric]),
+    backgroundColor: colors[index],
+    stack: pipelineName,
+    borderRadius: index === 2 ? {
+      topLeft: 4,
+      topRight: 4
+    } : undefined,
+    borderSkipped: false,
+    order: orderOffset + index
+  }));
 };
 
-const chartOptions = {
+// Computed chart data that responds to metric changes
+const chartData = computed(() => ({
+  labels: Object.keys(mockData),
+  datasets: pipelines.flatMap((pipeline, index) => 
+    createPipelineDataset(pipeline, mockData, index * (selectedMetric.value === 'number' ? 3 : 1))
+  )
+}));
+
+// Modified chart options with dynamic tooltip
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -259,7 +176,13 @@ const chartOptions = {
         },
         label: (context) => {
           const label = context.dataset.label.split(' ')[0];
-          return `${label}: ${context.parsed.y}`;
+          const value = context.parsed.y;
+          return selectedMetric.value === 'value' 
+            ? `${label}: ${new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD' 
+              }).format(value)}`
+            : `${label}: ${value}`;
         }
       }
     }
@@ -270,10 +193,23 @@ const chartOptions = {
     },
     y: {
       stacked: true,
-      beginAtZero: true
+      beginAtZero: true,
+      ticks: {
+        callback: (value) => {
+          if (selectedMetric.value === 'value') {
+            return new Intl.NumberFormat('en-US', { 
+              style: 'currency', 
+              currency: 'USD',
+              notation: 'compact',
+              maximumFractionDigits: 1
+            }).format(value);
+          }
+          return value;
+        }
+      }
     }
   },
   barPercentage: 0.9,
   categoryPercentage: 0.9
-};
+}));
 </script>
