@@ -1,16 +1,24 @@
 <template>
   <div class="border border-gray-200 dark:border-white/10 rounded-lg mb-4">
     <div class="p-4 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
-      <!-- Left side: Metric selector -->
-      <USelect
-        v-model="selectedMetric"
-        :options="metricOptions"
-        size="sm"
-        class="w-36"
-      />
+      <div class="flex gap-2">
+        <!-- Left side: Metric and TimeFrame selectors -->
+        <USelect
+          v-model="selectedMetric"
+          :options="metricOptions"
+          size="sm"
+          class="w-36"
+        />
+        <USelect
+          v-model="selectedTimeFrame"
+          :options="timeFrameOptions"
+          size="sm"
+          class="w-36"
+        />
+      </div>
       
       <!-- Right side: Navigation controls using UButtonGroup -->
-      <UButtonGroup size="sm" class="w-36">
+      <UButtonGroup size="sm" class="min-w-[9rem] whitespace-nowrap">
         <UButton
           color="white"
           variant="solid"
@@ -28,7 +36,7 @@
           color="white"
           variant="solid"
           :disabled="true"
-          class="flex-1 !px-0 flex items-center justify-center disabled:bg-white dark:disabled:bg-gray-900"
+          class="flex-1 !px-2 flex items-center justify-center disabled:bg-white dark:disabled:bg-gray-900"
         >
           <span class="text-center">{{ currentPeriodLabel }}</span>
         </UButton>
@@ -90,32 +98,95 @@ const metricOptions = [
 const currentDate = ref(new Date());
 const isLoading = ref(false);
 
+const selectedTimeFrame = ref('yearly');
+const timeFrameOptions = [
+  { label: 'Yearly', value: 'yearly' },
+  { label: 'Monthly', value: 'monthly' },
+  { label: 'Weekly', value: 'weekly' }
+];
+
 // Computed property to check if we're viewing the current period
 const isCurrentPeriod = computed(() => {
   const now = new Date();
-  return currentDate.value.getFullYear() === now.getFullYear();
+  const current = currentDate.value;
+  
+  switch (selectedTimeFrame.value) {
+    case 'yearly':
+      return current.getFullYear() === now.getFullYear();
+    case 'monthly':
+      return current.getFullYear() === now.getFullYear() 
+        && current.getMonth() === now.getMonth();
+    case 'weekly':
+      const currentWeekStart = startOfWeek(current);
+      const nowWeekStart = startOfWeek(now);
+      return currentWeekStart.getTime() === nowWeekStart.getTime();
+  }
 });
 
 // Format the current period for display
 const currentPeriodLabel = computed(() => {
-  return currentDate.value.getFullYear().toString();
+  const date = currentDate.value;
+  
+  switch (selectedTimeFrame.value) {
+    case 'yearly':
+      return date.getFullYear().toString();
+    case 'monthly':
+      return new Intl.DateTimeFormat('en-US', { 
+        month: 'short',
+        year: 'numeric' 
+      }).format(date);
+    case 'weekly':
+      const weekStart = new Date(date);
+      const weekEnd = new Date(date);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      return `${new Intl.DateTimeFormat('en-US', { 
+        month: 'short', 
+        day: 'numeric'
+      }).format(weekStart)} - ${new Intl.DateTimeFormat('en-US', { 
+        month: 'short', 
+        day: 'numeric'
+      }).format(weekEnd)}`;
+  }
 });
 
 // Navigate between periods
 const navigatePeriod = (direction) => {
   isLoading.value = true;
   
-  // Update the current date
   const newDate = new Date(currentDate.value);
-  newDate.setFullYear(newDate.getFullYear() + direction);
+  switch (selectedTimeFrame.value) {
+    case 'yearly':
+      newDate.setFullYear(newDate.getFullYear() + direction);
+      break;
+    case 'monthly':
+      newDate.setMonth(newDate.getMonth() + direction);
+      break;
+    case 'weekly':
+      newDate.setDate(newDate.getDate() + (direction * 7));
+      break;
+  }
   currentDate.value = newDate;
   
-  // Here you would typically fetch new data for the selected period
-  // For now, we'll just simulate a loading state
+  // Here you would fetch new data based on the time frame
   setTimeout(() => {
     isLoading.value = false;
   }, 500);
 };
+
+// Helper function to get start of week
+const startOfWeek = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  return new Date(d.setDate(diff));
+};
+
+// Watch for timeframe changes to adjust data accordingly
+watch(selectedTimeFrame, () => {
+  // Reset to current period when changing timeframe
+  currentDate.value = new Date();
+  // Here you would fetch new data based on the new timeframe
+});
 
 // Modified mock data function to generate data for any year
 const generateMockDataForYear = (year) => {
