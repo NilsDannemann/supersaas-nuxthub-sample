@@ -5,7 +5,7 @@
         v-model="selectedMetric"
         :options="metricOptions"
         size="sm"
-        class="w-48"
+        class="w-36"
       />
     </div>
     <div class="p-8">
@@ -117,27 +117,27 @@ const pipelines = [
   'Partnerships'
 ];
 
-// Modified helper function to handle both metrics with consistent separation
+// Modified helper function to reorder segments (lost on top, won on bottom)
 const createPipelineDataset = (pipelineName, data, orderOffset) => {
   const isNumber = selectedMetric.value === 'number';
   const metrics = isNumber 
-    ? ['won', 'lost', 'open']
-    : ['valueWon', 'valueLost', 'valueOpen'];
+    ? ['lost', 'open', 'won']  // Lost on top, won on bottom
+    : ['valueLost', 'valueOpen', 'valueWon'];
   
-  const colors = ['#0EA5E9', '#38BDF8', '#BAE6FD'];
-  const labels = ['Won', 'Lost', 'Open'];
+  const colors = ['#BAE6FD', '#38BDF8', '#0EA5E9'];  // Light to dark
+  const labels = ['Lost', 'Open', 'Won'];
 
   return metrics.map((metric, index) => ({
     label: `${labels[index]} (${pipelineName})`,
     data: Object.values(data).map(d => d[pipelineName.toLowerCase()][metric]),
     backgroundColor: colors[index],
     stack: pipelineName,
-    borderRadius: index === 2 ? {
+    borderRadius: index === 0 ? {  // Now applies to 'Lost' segment (top)
       topLeft: 4,
       topRight: 4
     } : undefined,
     borderSkipped: false,
-    order: orderOffset + index
+    order: orderOffset + (2 - index)  // Reverse the order (2,1,0 instead of 0,1,2)
   }));
 };
 
