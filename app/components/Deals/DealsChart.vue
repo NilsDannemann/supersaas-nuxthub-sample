@@ -63,6 +63,11 @@
         class="h-[300px]"
       />
     </div>
+    <div class="p-4 border-b border-gray-200 dark:border-white/10">
+      <pre class="text-xs text-gray-500 dark:text-gray-400 overflow-auto max-h-32 bg-gray-50 dark:bg-gray-800/50 p-2 rounded">
+        {{ deals }}
+      </pre>
+    </div>
   </div>
 </template>
 
@@ -361,4 +366,19 @@ const createPipelineDataset = (pipelineName, data, orderOffset) => {
     order: orderOffset + (2 - index)  // Reverse the order (2,1,0 instead of 0,1,2)
   }));
 };
+
+const props = defineProps({
+  deals: {
+    type: Array,
+    required: true
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  totalItems: {
+    type: Number,
+    required: true
+  }
+});
 </script>

@@ -31,13 +31,16 @@
       </div>
     </template>
     <DealsFilter @filter="handleFilter" />
-    <DealsChart />
+    <DealsChart 
+      :deals="deals"
+      :loading="dealsLoading"
+      :totalItems="totalItems"
+    />
     <DealsTable 
       :deals="deals"
       :loading="dealsLoading"
       :totalItems="totalItems"
       :baseUrlActiveCampaign="baseUrlActiveCampaign"
-      @update:page="updateDealsPage"
     />
   </AppPageContainer>
 </template>
