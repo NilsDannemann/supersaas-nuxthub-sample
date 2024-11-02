@@ -56,12 +56,37 @@
       </UButtonGroup>
     </div>
     <div class="p-8">
+      <div v-if="isLoading" class="h-[300px] flex items-center justify-center">
+        <UIcon 
+          name="i-heroicons-arrow-path-20-solid"
+          class="w-8 h-8 animate-spin text-gray-400"
+        />
+      </div>
+      <div 
+        v-else-if="error" 
+        class="h-[300px] flex flex-col items-center justify-center text-gray-500 gap-2"
+      >
+        <UIcon
+          name="i-heroicons-exclamation-triangle"
+          class="w-8 h-8 text-amber-500"
+        />
+        <p>{{ error }}</p>
+        <pre class="text-xs mt-2 max-w-lg overflow-auto">
+          Pipeline Data: {{ JSON.stringify(props.pipelinesData, null, 2) }}
+        </pre>
+      </div>
       <Bar 
-        v-if="chartData" 
+        v-else-if="chartData" 
         :data="chartData" 
         :options="chartOptions"
         class="h-[300px]"
       />
+      <div 
+        v-else 
+        class="h-[300px] flex items-center justify-center text-gray-500"
+      >
+        No data available for the selected period
+      </div>
     </div>
     <div class="p-4 border-b border-gray-200 dark:border-white/10">
       <pre class="text-xs text-gray-500 dark:text-gray-400 overflow-auto max-h-32 bg-gray-50 dark:bg-gray-800/50 p-2 rounded">
@@ -83,6 +108,24 @@ import {
   LinearScale
 } from 'chart.js';
 
+// Move all refs to the top
+const error = ref(null);
+const selectedMetric = ref('number');
+const selectedTimeFrame = ref('yearly');
+const currentDate = ref(new Date());
+const isLoading = ref(false);
+
+const metricOptions = [
+  { label: 'Number', value: 'number' },
+  { label: 'Value', value: 'value' }
+];
+
+const timeFrameOptions = [
+  { label: 'Yearly', value: 'yearly' },
+  { label: 'Monthly', value: 'monthly' },
+  { label: 'Weekly', value: 'weekly' }
+];
+
 // Register ChartJS components
 ChartJS.register(
   Title,
@@ -93,24 +136,394 @@ ChartJS.register(
   LinearScale
 );
 
-const selectedMetric = ref('number');
-const metricOptions = [
-  { label: 'Number', value: 'number' },
-  { label: 'Value', value: 'value' }
-];
+const props = defineProps({
+  deals: {
+    type: Array,
+    required: true
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  totalItems: {
+    type: Number,
+    required: true
+  },
+  pipelinesData: {
+    type: Object,
+    required: true
+  }
+});
 
-// Time period navigation
-const currentDate = ref(new Date());
-const isLoading = ref(false);
+// Add emit definition
+const emit = defineEmits(['periodChange']);
 
-const selectedTimeFrame = ref('yearly');
-const timeFrameOptions = [
-  { label: 'Yearly', value: 'yearly' },
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Weekly', value: 'weekly' }
-];
+// Add currency formatting helper
+const formatCurrency = (value, currency = 'EUR') => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value / 100); // Convert cents to whole currency units
+};
 
-// Computed property to check if we're viewing the current period
+// Add validation helper
+const validateDeals = (deals) => {
+  if (!Array.isArray(deals)) {
+    throw new Error('Deals must be an array');
+  }
+
+  const requiredFields = ['id', 'value', 'currency', 'status', 'group', 'cdate'];
+  const invalidDeals = deals.filter(deal => 
+    !deal || typeof deal !== 'object' ||
+    requiredFields.some(field => !(field in deal))
+  );
+
+  if (invalidDeals.length > 0) {
+    throw new Error(`Invalid deal data: Missing required fields in ${invalidDeals.length} deals`);
+  }
+};
+
+// Update aggregateDeals to track currencies
+const aggregateDeals = (deals, timeframe, date) => {
+  try {
+    const result = {};
+    
+    // Initialize periods based on timeframe
+    const periods = getPeriods(timeframe, date);
+    if (!periods.length) {
+      throw new Error('Invalid timeframe or date');
+    }
+
+    periods.forEach(period => {
+      result[period] = {};
+    });
+
+    // Group deals by period and pipeline
+    deals.forEach((deal, index) => {
+      try {
+        const dealDate = new Date(deal.cdate);
+        if (isNaN(dealDate.getTime())) {
+          throw new Error(`Invalid date format in deal at index ${index}`);
+        }
+
+        const period = getPeriodKey(dealDate, timeframe);
+        const pipelineId = deal.group;
+        
+        // Skip if deal is not in the current view period
+        if (!result[period]) return;
+        
+        // Initialize pipeline data if needed
+        if (!result[period][pipelineId]) {
+          result[period][pipelineId] = {
+            won: 0, lost: 0, open: 0,
+            valueWon: 0, valueLost: 0, valueOpen: 0,
+            currency: deal.currency
+          };
+        }
+        
+        // Validate and convert value
+        const value = parseInt(deal.value);
+        if (isNaN(value)) {
+          console.warn(`Invalid deal value for deal ${deal.id}, using 0`);
+        }
+        
+        // Increment counts and values based on status
+        switch (deal.status) {
+          case '1': // Won
+            result[period][pipelineId].won++;
+            result[period][pipelineId].valueWon += value || 0;
+            break;
+          case '2': // Lost
+            result[period][pipelineId].lost++;
+            result[period][pipelineId].valueLost += value || 0;
+            break;
+          case '0': // Open
+          default:
+            result[period][pipelineId].open++;
+            result[period][pipelineId].valueOpen += value || 0;
+        }
+      } catch (err) {
+        console.warn(`Error processing deal at index ${index}:`, err);
+        // Continue processing other deals
+      }
+    });
+
+    return result;
+  } catch (err) {
+    console.error('Error aggregating deals:', err);
+    throw err;
+  }
+};
+
+const getPeriods = (timeframe, date) => {
+  const periods = [];
+  const year = date.getFullYear();
+  
+  switch (timeframe) {
+    case 'yearly':
+      return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    case 'monthly':
+      // Generate weeks in the month
+      const startDate = new Date(year, date.getMonth(), 1);
+      const endDate = new Date(year, date.getMonth() + 1, 0);
+      for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 7)) {
+        periods.push(formatPeriodKey(d, 'monthly'));
+      }
+      return periods;
+    
+    case 'weekly':
+      // Generate days in the week
+      const weekStart = startOfWeek(date);
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(weekStart);
+        d.setDate(d.getDate() + i);
+        periods.push(formatPeriodKey(d, 'weekly'));
+      }
+      return periods;
+  }
+  
+  return periods;
+};
+
+const getPeriodKey = (date, timeframe) => {
+  return formatPeriodKey(date, timeframe);
+};
+
+const formatPeriodKey = (date, timeframe) => {
+  switch (timeframe) {
+    case 'yearly':
+      return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+    case 'monthly':
+      return new Intl.DateTimeFormat('en-US', { day: '2-digit' }).format(date);
+    case 'weekly':
+      return new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+    default:
+      return '';
+  }
+};
+
+// Add startOfWeek helper function
+const startOfWeek = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  return new Date(d.setDate(diff));
+};
+
+// Add pipelineMap computed
+const pipelineMap = computed(() => {
+  if (!props.pipelinesData?.dealGroups) return new Map();
+  
+  return new Map(
+    props.pipelinesData.dealGroups.map(pipeline => [
+      pipeline.id.toString(),
+      pipeline.title
+    ])
+  );
+});
+
+// Add getPipelineTitle function
+const getPipelineTitle = (pipelineId) => {
+  return pipelineMap.value.get(pipelineId.toString()) || pipelineId;
+};
+
+// Update chartData computed to include error handling
+const chartData = computed(() => {
+  try {
+    // Reset error state
+    error.value = null;
+
+    // Validate deals data
+    validateDeals(props.deals);
+
+    // Validate pipelinesData
+    if (!props.pipelinesData?.dealGroups) {
+      throw new Error('Pipeline data is missing or invalid');
+    }
+
+    const aggregatedData = aggregateDeals(props.deals, selectedTimeFrame.value, currentDate.value);
+    
+    // Check if we have any data to display
+    if (Object.keys(aggregatedData).length === 0) {
+      throw new Error('No data available for selected period');
+    }
+
+    // Get unique pipeline IDs from the aggregated data
+    const pipelineIds = [...new Set(
+      Object.values(aggregatedData)
+        .flatMap(periodData => Object.keys(periodData))
+    )];
+
+    if (pipelineIds.length === 0) {
+      throw new Error('No pipeline data available');
+    }
+
+    return {
+      labels: Object.keys(aggregatedData),
+      datasets: pipelineIds.flatMap((pipelineId, index) => 
+        createPipelineDataset(
+          getPipelineTitle(pipelineId),
+          aggregatedData,
+          index * (selectedMetric.value === 'number' ? 3 : 1)
+        )
+      )
+    };
+  } catch (err) {
+    error.value = err.message;
+    console.error('Chart data error:', err);
+    return null;
+  }
+});
+
+// Update createPipelineDataset function
+const createPipelineDataset = (pipelineName, data, orderOffset) => {
+  const isNumber = selectedMetric.value === 'number';
+  const metrics = isNumber 
+    ? ['lost', 'open', 'won']
+    : ['valueLost', 'valueOpen', 'valueWon'];
+  
+  const colors = ['#BAE6FD', '#38BDF8', '#0EA5E9'];
+  const labels = ['Lost', 'Open', 'Won'];
+
+  return metrics.map((metric, index) => ({
+    label: `${labels[index]} (${pipelineName})`,
+    data: Object.values(data).map(periodData => 
+      periodData[pipelineName.toLowerCase()]?.[metric] || 0
+    ),
+    backgroundColor: colors[index],
+    stack: pipelineName,
+    borderRadius: index === 0 ? {
+      topLeft: 4,
+      topRight: 4
+    } : undefined,
+    borderSkipped: false,
+    order: orderOffset + (2 - index)
+  }));
+};
+
+// Update chartOptions to handle currency in tooltips
+const chartOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      enabled: true,
+      mode: 'nearest',
+      intersect: true,
+      callbacks: {
+        title: (context) => {
+          if (context[0]) {
+            const stack = context[0].dataset.stack;
+            const month = context[0].label;
+            return `${stack} - ${month}`;
+          }
+          return '';
+        },
+        label: (context) => {
+          const label = context.dataset.label.split(' ')[0];
+          const value = context.parsed.y;
+          const currency = context.dataset.currency || 'EUR';
+          
+          return selectedMetric.value === 'value' 
+            ? `${label}: ${formatCurrency(value, currency)}`
+            : `${label}: ${value}`;
+        }
+      }
+    }
+  },
+  scales: {
+    x: {
+      stacked: true,
+    },
+    y: {
+      stacked: true,
+      beginAtZero: true,
+      ticks: {
+        callback: (value) => {
+          if (selectedMetric.value === 'value') {
+            return new Intl.NumberFormat('en-US', { 
+              notation: 'compact',
+              maximumFractionDigits: 1
+            }).format(value / 100); // Convert cents to whole units
+          }
+          return value;
+        }
+      }
+    }
+  }
+}));
+
+// Update navigatePeriod to emit events
+const navigatePeriod = (direction) => {
+  isLoading.value = true;
+  
+  const newDate = new Date(currentDate.value);
+  switch (selectedTimeFrame.value) {
+    case 'yearly':
+      newDate.setFullYear(newDate.getFullYear() + direction);
+      break;
+    case 'monthly':
+      newDate.setMonth(newDate.getMonth() + direction);
+      break;
+    case 'weekly':
+      newDate.setDate(newDate.getDate() + (direction * 7));
+      break;
+  }
+  currentDate.value = newDate;
+  
+  // Emit period change event with date range
+  const dateRange = getDateRangeForPeriod(newDate, selectedTimeFrame.value);
+  emit('periodChange', {
+    timeframe: selectedTimeFrame.value,
+    dateRange
+  });
+};
+
+// Add helper to get date range for period
+const getDateRangeForPeriod = (date, timeframe) => {
+  const start = new Date(date);
+  const end = new Date(date);
+  
+  switch (timeframe) {
+    case 'yearly':
+      start.setMonth(0, 1);
+      end.setMonth(11, 31);
+      break;
+    case 'monthly':
+      start.setDate(1);
+      end.setMonth(end.getMonth() + 1, 0);
+      break;
+    case 'weekly':
+      const day = start.getDay();
+      start.setDate(start.getDate() - day);
+      end.setDate(end.getDate() + (6 - day));
+      break;
+  }
+  
+  // Set time to start/end of day
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+  
+  return { start, end };
+};
+
+// Watch timeframe changes to emit events
+watch(selectedTimeFrame, (newTimeframe) => {
+  const dateRange = getDateRangeForPeriod(currentDate.value, newTimeframe);
+  emit('periodChange', {
+    timeframe: newTimeframe,
+    dateRange
+  });
+});
+
+// Add computed for current period check
 const isCurrentPeriod = computed(() => {
   const now = new Date();
   const current = currentDate.value;
@@ -128,7 +541,7 @@ const isCurrentPeriod = computed(() => {
   }
 });
 
-// Format the current period for display
+// Add computed for period label
 const currentPeriodLabel = computed(() => {
   const date = currentDate.value;
   
@@ -154,231 +567,8 @@ const currentPeriodLabel = computed(() => {
   }
 });
 
-// Navigate between periods
-const navigatePeriod = (direction) => {
-  isLoading.value = true;
-  
-  const newDate = new Date(currentDate.value);
-  switch (selectedTimeFrame.value) {
-    case 'yearly':
-      newDate.setFullYear(newDate.getFullYear() + direction);
-      break;
-    case 'monthly':
-      newDate.setMonth(newDate.getMonth() + direction);
-      break;
-    case 'weekly':
-      newDate.setDate(newDate.getDate() + (direction * 7));
-      break;
-  }
-  currentDate.value = newDate;
-  
-  // Here you would fetch new data based on the time frame
-  setTimeout(() => {
-    isLoading.value = false;
-  }, 500);
-};
-
-// Helper function to get start of week
-const startOfWeek = (date) => {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day;
-  return new Date(d.setDate(diff));
-};
-
-// Watch for timeframe changes to adjust data accordingly
-watch(selectedTimeFrame, () => {
-  // Reset to current period when changing timeframe
-  currentDate.value = new Date();
-  // Here you would fetch new data based on the new timeframe
-});
-
-// Modified mock data function to generate data for any year
-const generateMockDataForYear = (year) => {
-  // This is a placeholder that returns the existing mockData
-  // Later this will be replaced with real API data
-  return mockData;
-};
-
-// Update chartData computed to use the current year
-const chartData = computed(() => {
-  const yearData = generateMockDataForYear(currentDate.value.getFullYear());
-  return {
-    labels: Object.keys(yearData),
-    datasets: pipelines.flatMap((pipeline, index) => 
-      createPipelineDataset(pipeline, yearData, index * (selectedMetric.value === 'number' ? 3 : 1))
-    )
-  };
-});
-
-// Modified chart options with dynamic tooltip
-const chartOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false
-    },
-    title: {
-      display: false
-    },
-    tooltip: {
-      enabled: true,
-      mode: 'nearest',
-      intersect: true,
-      reverse: true,
-      callbacks: {
-        title: (context) => {
-          if (context[0]) {
-            const stack = context[0].dataset.stack;
-            const month = context[0].label;
-            return `${stack} - ${month}`;
-          }
-          return '';
-        },
-        label: (context) => {
-          const label = context.dataset.label.split(' ')[0];
-          const value = context.parsed.y;
-          return selectedMetric.value === 'value' 
-            ? `${label}: ${new Intl.NumberFormat('en-US', { 
-                style: 'currency', 
-                currency: 'USD' 
-              }).format(value)}`
-            : `${label}: ${value}`;
-        }
-      }
-    }
-  },
-  scales: {
-    x: {
-      stacked: true,
-    },
-    y: {
-      stacked: true,
-      beginAtZero: true,
-      ticks: {
-        callback: (value) => {
-          if (selectedMetric.value === 'value') {
-            return new Intl.NumberFormat('en-US', { 
-              notation: 'compact',
-              maximumFractionDigits: 1
-            }).format(value);
-          }
-          return value;
-        }
-      }
-    }
-  },
-  barPercentage: 0.9,
-  categoryPercentage: 0.9
-}));
-
-// Updated mock data for full year
-const mockData = {
-  'Jan': { 
-    sales: { won: 8, lost: 3, open: 5, valueWon: 50000, valueLost: 20000, valueOpen: 10000 },
-    marketing: { won: 6, lost: 2, open: 4, valueWon: 40000, valueLost: 15000, valueOpen: 5000 },
-    partnerships: { won: 7, lost: 2, open: 4, valueWon: 45000, valueLost: 15000, valueOpen: 10000 }
-  },
-  'Feb': { 
-    sales: { won: 9, lost: 4, open: 6, valueWon: 60000, valueLost: 20000, valueOpen: 10000 },
-    marketing: { won: 7, lost: 3, open: 5, valueWon: 45000, valueLost: 15000, valueOpen: 10000 },
-    partnerships: { won: 8, lost: 3, open: 5, valueWon: 50000, valueLost: 20000, valueOpen: 10000 }
-  },
-  'Mar': {
-    sales: { won: 10, lost: 3, open: 4, valueWon: 65000, valueLost: 18000, valueOpen: 12000 },
-    marketing: { won: 8, lost: 2, open: 6, valueWon: 48000, valueLost: 16000, valueOpen: 8000 },
-    partnerships: { won: 9, lost: 4, open: 3, valueWon: 55000, valueLost: 22000, valueOpen: 9000 }
-  },
-  'Apr': {
-    sales: { won: 11, lost: 4, open: 5, valueWon: 70000, valueLost: 25000, valueOpen: 15000 },
-    marketing: { won: 9, lost: 3, open: 4, valueWon: 52000, valueLost: 18000, valueOpen: 7000 },
-    partnerships: { won: 8, lost: 2, open: 6, valueWon: 48000, valueLost: 16000, valueOpen: 11000 }
-  },
-  'May': {
-    sales: { won: 12, lost: 3, open: 6, valueWon: 75000, valueLost: 22000, valueOpen: 13000 },
-    marketing: { won: 10, lost: 4, open: 3, valueWon: 58000, valueLost: 20000, valueOpen: 9000 },
-    partnerships: { won: 9, lost: 3, open: 5, valueWon: 54000, valueLost: 19000, valueOpen: 12000 }
-  },
-  'Jun': {
-    sales: { won: 10, lost: 5, open: 4, valueWon: 68000, valueLost: 28000, valueOpen: 11000 },
-    marketing: { won: 8, lost: 3, open: 5, valueWon: 50000, valueLost: 17000, valueOpen: 10000 },
-    partnerships: { won: 11, lost: 2, open: 4, valueWon: 62000, valueLost: 15000, valueOpen: 8000 }
-  },
-  'Jul': {
-    sales: { won: 13, lost: 4, open: 5, valueWon: 80000, valueLost: 24000, valueOpen: 14000 },
-    marketing: { won: 11, lost: 3, open: 4, valueWon: 65000, valueLost: 19000, valueOpen: 8000 },
-    partnerships: { won: 10, lost: 4, open: 6, valueWon: 58000, valueLost: 21000, valueOpen: 13000 }
-  },
-  'Aug': {
-    sales: { won: 12, lost: 3, open: 6, valueWon: 72000, valueLost: 20000, valueOpen: 15000 },
-    marketing: { won: 9, lost: 4, open: 5, valueWon: 54000, valueLost: 22000, valueOpen: 11000 },
-    partnerships: { won: 11, lost: 3, open: 4, valueWon: 64000, valueLost: 18000, valueOpen: 9000 }
-  },
-  'Sep': {
-    sales: { won: 14, lost: 4, open: 5, valueWon: 85000, valueLost: 26000, valueOpen: 12000 },
-    marketing: { won: 12, lost: 3, open: 4, valueWon: 70000, valueLost: 21000, valueOpen: 10000 },
-    partnerships: { won: 10, lost: 5, open: 6, valueWon: 60000, valueLost: 24000, valueOpen: 14000 }
-  },
-  'Oct': {
-    sales: { won: 15, lost: 3, open: 6, valueWon: 90000, valueLost: 23000, valueOpen: 16000 },
-    marketing: { won: 13, lost: 4, open: 5, valueWon: 75000, valueLost: 24000, valueOpen: 12000 },
-    partnerships: { won: 12, lost: 3, open: 4, valueWon: 68000, valueLost: 20000, valueOpen: 10000 }
-  },
-  'Nov': {
-    sales: { won: 13, lost: 5, open: 4, valueWon: 82000, valueLost: 28000, valueOpen: 13000 },
-    marketing: { won: 11, lost: 3, open: 6, valueWon: 66000, valueLost: 19000, valueOpen: 14000 },
-    partnerships: { won: 14, lost: 4, open: 5, valueWon: 78000, valueLost: 23000, valueOpen: 11000 }
-  },
-  'Dec': {
-    sales: { won: 16, lost: 4, open: 5, valueWon: 95000, valueLost: 25000, valueOpen: 15000 },
-    marketing: { won: 14, lost: 3, open: 4, valueWon: 80000, valueLost: 20000, valueOpen: 11000 },
-    partnerships: { won: 13, lost: 4, open: 6, valueWon: 72000, valueLost: 22000, valueOpen: 13000 }
-  }
-};
-
-const pipelines = [
-  'Sales',
-  'Marketing',
-  'Partnerships'
-];
-
-// Modified helper function to reorder segments (lost on top, won on bottom)
-const createPipelineDataset = (pipelineName, data, orderOffset) => {
-  const isNumber = selectedMetric.value === 'number';
-  const metrics = isNumber 
-    ? ['lost', 'open', 'won']  // Lost on top, won on bottom
-    : ['valueLost', 'valueOpen', 'valueWon'];
-  
-  const colors = ['#BAE6FD', '#38BDF8', '#0EA5E9'];  // Light to dark
-  const labels = ['Lost', 'Open', 'Won'];
-
-  return metrics.map((metric, index) => ({
-    label: `${labels[index]} (${pipelineName})`,
-    data: Object.values(data).map(d => d[pipelineName.toLowerCase()][metric]),
-    backgroundColor: colors[index],
-    stack: pipelineName,
-    borderRadius: index === 0 ? {  // Now applies to 'Lost' segment (top)
-      topLeft: 4,
-      topRight: 4
-    } : undefined,
-    borderSkipped: false,
-    order: orderOffset + (2 - index)  // Reverse the order (2,1,0 instead of 0,1,2)
-  }));
-};
-
-const props = defineProps({
-  deals: {
-    type: Array,
-    required: true
-  },
-  loading: {
-    type: Boolean,
-    default: false
-  },
-  totalItems: {
-    type: Number,
-    required: true
-  }
+// Watch loading prop
+watch(() => props.loading, (newValue) => {
+  isLoading.value = newValue;
 });
 </script>
