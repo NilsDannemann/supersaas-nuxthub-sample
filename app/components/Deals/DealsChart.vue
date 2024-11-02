@@ -449,7 +449,40 @@ const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   }));
 };
 
-// Update chartOptions to handle currency in tooltips
+// Add a ref to store the global maximum value
+const globalMaxValue = ref(0);
+
+// Update findMaxValue to remove padding
+const findMaxValue = (data) => {
+  let periodMaxValue = 0;
+  
+  Object.values(data).forEach(periodData => {
+    Object.values(periodData).forEach(pipelineData => {
+      if (selectedMetric.value === 'number') {
+        // For number metric, sum up the stacked values
+        const total = pipelineData.won + pipelineData.lost + pipelineData.open;
+        periodMaxValue = Math.max(periodMaxValue, total);
+      } else {
+        // For value metric, sum up the stacked values
+        const total = pipelineData.valueWon + pipelineData.valueLost + pipelineData.valueOpen;
+        periodMaxValue = Math.max(periodMaxValue, total);
+      }
+    });
+  });
+
+  // Update global maximum if current period has higher value
+  globalMaxValue.value = Math.max(globalMaxValue.value, periodMaxValue);
+  
+  // Return exact maximum without padding
+  return globalMaxValue.value;
+};
+
+// Reset global maximum when metric type changes
+watch(selectedMetric, () => {
+  globalMaxValue.value = 0;
+});
+
+// Update chartOptions to use fixed max
 const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -489,13 +522,14 @@ const chartOptions = computed(() => ({
     y: {
       stacked: true,
       beginAtZero: true,
+      max: findMaxValue(aggregateDeals(props.deals, selectedTimeFrame.value, currentDate.value)),
       ticks: {
         callback: (value) => {
           if (selectedMetric.value === 'value') {
             return new Intl.NumberFormat('en-US', { 
               notation: 'compact',
               maximumFractionDigits: 1
-            }).format(value / 100); // Convert cents to whole units
+            }).format(value / 100);
           }
           return value;
         }
