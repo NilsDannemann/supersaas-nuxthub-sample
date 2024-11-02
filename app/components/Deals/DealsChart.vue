@@ -452,7 +452,7 @@ const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
 // Add a ref to store the global maximum value
 const globalMaxValue = ref(0);
 
-// Update findMaxValue to remove padding
+// Update findMaxValue to add a small padding
 const findMaxValue = (data) => {
   let periodMaxValue = 0;
   
@@ -473,8 +473,8 @@ const findMaxValue = (data) => {
   // Update global maximum if current period has higher value
   globalMaxValue.value = Math.max(globalMaxValue.value, periodMaxValue);
   
-  // Return exact maximum without padding
-  return globalMaxValue.value;
+  // Add 10% padding to the maximum for visual comfort
+  return Math.ceil(globalMaxValue.value * 1.1);
 };
 
 // Reset global maximum when metric type changes
