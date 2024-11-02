@@ -183,7 +183,7 @@ const validateDeals = (deals) => {
   }
 };
 
-// Update aggregateDeals to track currencies
+// Update aggregateDeals to filter by year/month/week based on selected timeframe
 const aggregateDeals = (deals, timeframe, date) => {
   try {
     const result = {};
@@ -198,6 +198,11 @@ const aggregateDeals = (deals, timeframe, date) => {
       result[period] = {};
     });
 
+    // Get date range for current view
+    const viewRange = getDateRangeForPeriod(date, timeframe);
+    const viewStart = viewRange.start;
+    const viewEnd = viewRange.end;
+
     // Group deals by period and pipeline
     deals.forEach((deal, index) => {
       try {
@@ -206,10 +211,13 @@ const aggregateDeals = (deals, timeframe, date) => {
           throw new Error(`Invalid date format in deal at index ${index}`);
         }
 
+        // Skip if deal is not in the current view period
+        if (dealDate < viewStart || dealDate > viewEnd) return;
+
         const period = getPeriodKey(dealDate, timeframe);
         const pipelineId = deal.group;
         
-        // Skip if deal is not in the current view period
+        // Skip if period is not in our current view
         if (!result[period]) return;
         
         // Initialize pipeline data if needed
@@ -505,7 +513,7 @@ const navigatePeriod = (direction) => {
   }, 100);
 };
 
-// Add helper to get date range for period
+// Update getDateRangeForPeriod to be more precise
 const getDateRangeForPeriod = (date, timeframe) => {
   const start = new Date(date);
   const end = new Date(date);
@@ -513,22 +521,24 @@ const getDateRangeForPeriod = (date, timeframe) => {
   switch (timeframe) {
     case 'yearly':
       start.setMonth(0, 1);
+      start.setHours(0, 0, 0, 0);
       end.setMonth(11, 31);
+      end.setHours(23, 59, 59, 999);
       break;
     case 'monthly':
       start.setDate(1);
-      end.setMonth(end.getMonth() + 1, 0);
+      start.setHours(0, 0, 0, 0);
+      end.setMonth(end.getMonth() + 1, 0); // Last day of month
+      end.setHours(23, 59, 59, 999);
       break;
     case 'weekly':
       const day = start.getDay();
       start.setDate(start.getDate() - day);
+      start.setHours(0, 0, 0, 0);
       end.setDate(end.getDate() + (6 - day));
+      end.setHours(23, 59, 59, 999);
       break;
   }
-  
-  // Set time to start/end of day
-  start.setHours(0, 0, 0, 0);
-  end.setHours(23, 59, 59, 999);
   
   return { start, end };
 };
