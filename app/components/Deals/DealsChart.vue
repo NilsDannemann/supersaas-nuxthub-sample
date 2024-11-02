@@ -56,11 +56,12 @@
       </UButtonGroup>
     </div>
     <div class="p-8">
-      <div v-if="isLoading" class="h-[300px] flex items-center justify-center">
+      <div v-if="isLoading" class="h-[300px] flex flex-col items-center justify-center gap-2">
         <UIcon 
           name="i-heroicons-arrow-path-20-solid"
           class="w-8 h-8 animate-spin text-gray-400"
         />
+        <span class="text-sm text-gray-500">Loading data...</span>
       </div>
       <div 
         v-else-if="error" 
@@ -121,9 +122,9 @@ const metricOptions = [
 ];
 
 const timeFrameOptions = [
-  { label: 'Yearly', value: 'yearly' },
-  { label: 'Monthly', value: 'monthly' },
-  { label: 'Weekly', value: 'weekly' }
+  { label: 'Year', value: 'yearly' },
+  { label: 'Month', value: 'monthly' },
+  { label: 'Week', value: 'weekly' }
 ];
 
 // Register ChartJS components
@@ -154,9 +155,6 @@ const props = defineProps({
     required: true
   }
 });
-
-// Add emit definition
-const emit = defineEmits(['periodChange']);
 
 // Add currency formatting helper
 const formatCurrency = (value, currency = 'EUR') => {
@@ -298,7 +296,21 @@ const formatPeriodKey = (date, timeframe) => {
     case 'yearly':
       return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
     case 'monthly':
-      return new Intl.DateTimeFormat('en-US', { day: '2-digit' }).format(date);
+      // Get week number within the month
+      const weekStart = new Date(date);
+      const weekEnd = new Date(date);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      
+      // Calculate week number (1-based)
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const weekNumber = Math.ceil((date.getDate() + monthStart.getDay()) / 7);
+      
+      // If the week spans across months, only show the dates within the current month
+      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      const displayStart = weekStart < monthStart ? monthStart : weekStart;
+      const displayEnd = weekEnd > monthEnd ? monthEnd : weekEnd;
+      
+      return `Week ${weekNumber} (${displayStart.getDate()}-${displayEnd.getDate()})`;
     case 'weekly':
       return new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
     default:
@@ -331,11 +343,16 @@ const getPipelineTitle = (pipelineId) => {
   return pipelineMap.value.get(pipelineId.toString()) || pipelineId;
 };
 
-// Update chartData computed to include error handling
+// Update chartData computed to handle loading state
 const chartData = computed(() => {
   try {
     // Reset error state
     error.value = null;
+
+    // Don't validate while loading
+    if (props.loading) {
+      return null;
+    }
 
     // Validate deals data
     validateDeals(props.deals);
@@ -343,6 +360,11 @@ const chartData = computed(() => {
     // Validate pipelinesData
     if (!props.pipelinesData?.dealGroups) {
       throw new Error('Pipeline data is missing or invalid');
+    }
+
+    // Check if pipelines are still loading (empty array)
+    if (props.pipelinesData.dealGroups.length === 0) {
+      throw new Error('Loading pipeline data...');
     }
 
     const aggregatedData = aggregateDeals(props.deals, selectedTimeFrame.value, currentDate.value);
@@ -460,7 +482,7 @@ const chartOptions = computed(() => ({
   }
 }));
 
-// Update navigatePeriod to emit events
+// Update navigatePeriod to not emit events
 const navigatePeriod = (direction) => {
   isLoading.value = true;
   
@@ -478,12 +500,10 @@ const navigatePeriod = (direction) => {
   }
   currentDate.value = newDate;
   
-  // Emit period change event with date range
-  const dateRange = getDateRangeForPeriod(newDate, selectedTimeFrame.value);
-  emit('periodChange', {
-    timeframe: selectedTimeFrame.value,
-    dateRange
-  });
+  // Just update loading state after a short delay to show transition
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 100);
 };
 
 // Add helper to get date range for period
@@ -513,15 +533,6 @@ const getDateRangeForPeriod = (date, timeframe) => {
   
   return { start, end };
 };
-
-// Watch timeframe changes to emit events
-watch(selectedTimeFrame, (newTimeframe) => {
-  const dateRange = getDateRangeForPeriod(currentDate.value, newTimeframe);
-  emit('periodChange', {
-    timeframe: newTimeframe,
-    dateRange
-  });
-});
 
 // Add computed for current period check
 const isCurrentPeriod = computed(() => {

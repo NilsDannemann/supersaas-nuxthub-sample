@@ -33,10 +33,9 @@
     <DealsFilter @filter="handleFilter" />
     <DealsChart 
       :deals="dealsData?.deals || []"
-      :loading="dealsLoading"
+      :loading="dealsLoading || pipelinesLoading"
       :totalItems="totalItems"
       :pipelinesData="pipelinesData || { dealGroups: [] }"
-      @periodChange="handlePeriodChange"
     />
     <DealsTable 
       :deals="deals"
@@ -54,7 +53,7 @@ import DealsFilter from '~/components/Deals/DealsFilter.vue';
 import DealsTable from '~/components/Deals/DealsTable.vue';
 import DealsChart from '~/components/Deals/DealsChart.vue';
 
-const { data: pipelinesData } = await useFetch('/api/deals/pipelines', {
+const { data: pipelinesData, pending: pipelinesLoading } = await useFetch('/api/deals/pipelines', {
   lazy: true,
   server: false,
   default: () => ({ dealGroups: [] })
@@ -184,13 +183,5 @@ const formatCurrency = (value, currency) => {
 const handlePageChange = (newPage) => {
   dealPage.value = newPage;
   loadDeals(); // This will trigger a data refresh with the new page
-};
-
-const handlePeriodChange = ({ timeframe, dateRange }) => {
-  dateRangeFilter.value = {
-    start: dateRange.start,
-    end: dateRange.end
-  };
-  loadDeals(); // This will trigger a data refresh with the new date range
 };
 </script>
