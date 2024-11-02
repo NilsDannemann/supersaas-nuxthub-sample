@@ -1,7 +1,7 @@
 <template>
   <main class="flex flex-col items-center justify-center h-screen">
     <div class="w-full max-w-sm mx-auto space-y-4">
-      <img src="/logo.png" alt="Data Prism" class="h-8 w-auto" />
+      <img src="/logo.png" alt="DATA/Prism" class="h-8 w-auto" />
       <h1 class="font-semibold text-2xl">Reset Password</h1>
       <p class="text-sm">
         Enter your email and we'll send you instructions to reset your password
