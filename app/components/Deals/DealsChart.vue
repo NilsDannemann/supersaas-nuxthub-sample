@@ -56,7 +56,10 @@
       </UButtonGroup>
     </div>
     <div class="p-8">
-      <div v-if="isLoading" class="h-[300px] flex flex-col items-center justify-center gap-2">
+      <div 
+        v-if="props.loading || isLoading" 
+        class="h-[300px] flex flex-col items-center justify-center gap-2"
+      >
         <UIcon 
           name="i-heroicons-arrow-path-20-solid"
           class="w-8 h-8 animate-spin text-gray-400"
@@ -72,12 +75,9 @@
           class="w-8 h-8 text-amber-500"
         />
         <p>{{ error }}</p>
-        <pre class="text-xs mt-2 max-w-lg overflow-auto">
-          Pipeline Data: {{ JSON.stringify(props.pipelinesData, null, 2) }}
-        </pre>
       </div>
       <Bar 
-        v-else-if="chartData" 
+        v-else-if="chartData && Object.keys(chartData.datasets || {}).length > 0" 
         :data="chartData" 
         :options="chartOptions"
         class="h-[300px]"
@@ -251,6 +251,10 @@ const aggregateDeals = (deals, timeframe, date) => {
       }
     });
 
+    console.log('Timeframe:', timeframe);
+    console.log('View Range:', viewStart, viewEnd);
+    console.log('Result:', JSON.stringify(result, null, 2));
+
     return result;
   } catch (err) {
     console.error('Error aggregating deals:', err);
@@ -258,6 +262,7 @@ const aggregateDeals = (deals, timeframe, date) => {
   }
 };
 
+// Update getPeriods for monthly view
 const getPeriods = (timeframe, date) => {
   const periods = [];
   const year = date.getFullYear();
@@ -268,52 +273,67 @@ const getPeriods = (timeframe, date) => {
               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
     case 'monthly':
-      // Generate weeks in the month
-      const startDate = new Date(year, date.getMonth(), 1);
-      const endDate = new Date(year, date.getMonth() + 1, 0);
-      for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 7)) {
-        periods.push(formatPeriodKey(d, 'monthly'));
+      // Get the first and last date of the month
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      
+      // Start from the first week
+      let currentDate = new Date(monthStart);
+      
+      // Keep track of week numbers
+      let weekNumber = 1;
+      
+      while (currentDate <= monthEnd) {
+        const periodKey = `Week ${weekNumber}`;
+        periods.push(periodKey);
+        currentDate.setDate(currentDate.getDate() + 7);
+        weekNumber++;
       }
+      
+      console.log('Monthly periods:', periods);
       return periods;
-    
+  
     case 'weekly':
-      // Generate days in the week
-      const weekStart = startOfWeek(date);
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(weekStart);
-        d.setDate(d.getDate() + i);
-        periods.push(formatPeriodKey(d, 'weekly'));
-      }
-      return periods;
+      return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   }
   
   return periods;
 };
 
+// Update getPeriodKey for monthly view to match
 const getPeriodKey = (date, timeframe) => {
-  return formatPeriodKey(date, timeframe);
+  switch (timeframe) {
+    case 'yearly':
+      return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+    case 'monthly':
+      // Calculate week number within the month
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const weekNumber = Math.ceil((date.getDate() + monthStart.getDay()) / 7);
+      const periodKey = `Week ${weekNumber}`;
+      console.log('Deal date:', date, 'Period key:', periodKey);
+      return periodKey;
+    case 'weekly':
+      return new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
+    default:
+      return '';
+  }
 };
 
+// Update formatPeriodKey to match
 const formatPeriodKey = (date, timeframe) => {
   switch (timeframe) {
     case 'yearly':
       return new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
     case 'monthly':
-      // Get week number within the month
       const weekStart = new Date(date);
       const weekEnd = new Date(date);
       weekEnd.setDate(weekEnd.getDate() + 6);
       
-      // Calculate week number (1-based)
       const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
       const weekNumber = Math.ceil((date.getDate() + monthStart.getDay()) / 7);
       
-      // If the week spans across months, only show the dates within the current month
-      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      const displayStart = weekStart < monthStart ? monthStart : weekStart;
-      const displayEnd = weekEnd > monthEnd ? monthEnd : weekEnd;
-      
-      return `Week ${weekNumber} (${displayStart.getDate()}-${displayEnd.getDate()})`;
+      // Keep the week number format consistent
+      return `Week ${weekNumber}`;
     case 'weekly':
       return new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
     default:
