@@ -89,11 +89,6 @@
         No data available for the selected period
       </div>
     </div>
-    <div class="p-4 border-b border-gray-200 dark:border-white/10">
-      <pre class="text-xs text-gray-500 dark:text-gray-400 overflow-auto max-h-32 bg-gray-50 dark:bg-gray-800/50 p-2 rounded">
-        {{ deals }}
-      </pre>
-    </div>
   </div>
 </template>
 
