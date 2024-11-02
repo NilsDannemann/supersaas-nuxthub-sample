@@ -50,7 +50,7 @@ async function sendVerificationEmail(
     const emailOptions = {
       to: email,
       from: fromEmail,
-      subject: "CRM Prism - Signup",
+      subject: "Data Prism - Signup",
       html,
     };
     await useEmail(emailProvider).send(emailOptions);

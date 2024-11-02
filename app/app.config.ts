@@ -7,7 +7,7 @@ export default defineAppConfig({
     },
   },
   seo: {
-    title: "CRM Prism - Modern CRM Solution",
-    description: "Modern fullstack CRM solution with powerful integrations.",
+    title: "Data Prism",
+    description: "Explore your Data from the right perspective.",
   },
 });
