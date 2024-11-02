@@ -7,7 +7,7 @@ export default defineAppConfig({
     },
   },
   seo: {
-    title: "Data Prism",
+    title: "DATA/Prism",
     description: "Explore your Data from the right perspective.",
   },
 });

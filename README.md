@@ -1,6 +1,6 @@
-# Data Prism NuxtHub
+# DATA/Prism NuxtHub
 
-This version of Data Prism is built specifically for [NuxtHub](https://hub.nuxt.com/). 
+This version of DATA/Prism is built specifically for [NuxtHub](https://hub.nuxt.com/). 
 
 Why a separate repo?
 
