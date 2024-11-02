@@ -32,7 +32,7 @@
     </template>
     <DealsFilter @filter="handleFilter" />
     <DealsChart 
-      :deals="dealsData?.deals || []"
+      :deals="allDeals"
       :loading="dealsLoading || pipelinesLoading"
       :totalItems="totalItems"
       :pipelinesData="pipelinesData || { dealGroups: [] }"
@@ -135,23 +135,39 @@ const handleFilter = ({ search, status, pipeline, dateRange }) => {
   loadDeals();
 };
 
+// Add a new ref for all deals (for chart)
+const allDeals = ref([]);
+
+// Add a new fetch for all deals
+const { data: allDealsData, refresh: refreshAllDeals } = await useFetch(() => `/api/deals`, { 
+  lazy: true,
+  immediate: false,
+  query: computed(() => ({
+    // Remove pagination, but keep filters
+    search: searchQuery.value,
+    status: statusFilter.value,
+    pipeline: pipelineFilter.value,
+    dateRange: dateRangeFilter.value ? JSON.stringify(dateRangeFilter.value) : null,
+    // Add a parameter to get all deals
+    all: true
+  }))
+});
+
+// Update loadDeals to fetch both paginated and all deals
 const loadDeals = async () => {
   dealsLoading.value = true;
   try {
-    const query = {
-      page: dealPage.value,
-      search: searchQuery.value,
-      status: statusFilter.value,
-      pipeline: pipelineFilter.value,
-      dateRange: dateRangeFilter.value ? JSON.stringify(dateRangeFilter.value) : null
-    };
-    
-    await refreshDeals(query);
+    // Fetch paginated deals for table
+    await refreshDeals();
     deals.value = dealsData.value?.deals || [];
     totalItems.value = dealsData.value?.meta?.total || 0;
     baseUrlActiveCampaign.value = dealsData.value?.baseUrlActiveCampaign || '';
 
-    // Use the meta.currencies information for total values
+    // Fetch all deals for chart
+    await refreshAllDeals();
+    allDeals.value = allDealsData.value?.deals || [];
+
+    // Update currency totals
     if (dealsData.value?.meta?.currencies) {
       totalDealValues.value = Object.entries(dealsData.value.meta.currencies).reduce((acc, [currency, data]) => {
         acc[currency] = data.value;

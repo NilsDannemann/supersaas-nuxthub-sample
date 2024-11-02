@@ -368,31 +368,28 @@ const chartData = computed(() => {
     }
 
     const aggregatedData = aggregateDeals(props.deals, selectedTimeFrame.value, currentDate.value);
+    console.log('Aggregated Data:', aggregatedData);
     
-    // Check if we have any data to display
-    if (Object.keys(aggregatedData).length === 0) {
-      throw new Error('No data available for selected period');
-    }
-
-    // Get unique pipeline IDs from the aggregated data
     const pipelineIds = [...new Set(
       Object.values(aggregatedData)
         .flatMap(periodData => Object.keys(periodData))
     )];
+    console.log('Pipeline IDs:', pipelineIds);
 
-    if (pipelineIds.length === 0) {
-      throw new Error('No pipeline data available');
-    }
+    const datasets = pipelineIds.flatMap((pipelineId, index) => {
+      const datasets = createPipelineDataset(
+        getPipelineTitle(pipelineId),
+        aggregatedData,
+        index * (selectedMetric.value === 'number' ? 3 : 1),
+        pipelineId
+      );
+      console.log(`Datasets for pipeline ${pipelineId}:`, datasets);
+      return datasets;
+    });
 
     return {
       labels: Object.keys(aggregatedData),
-      datasets: pipelineIds.flatMap((pipelineId, index) => 
-        createPipelineDataset(
-          getPipelineTitle(pipelineId),
-          aggregatedData,
-          index * (selectedMetric.value === 'number' ? 3 : 1)
-        )
-      )
+      datasets
     };
   } catch (err) {
     error.value = err.message;
@@ -401,8 +398,8 @@ const chartData = computed(() => {
   }
 });
 
-// Update createPipelineDataset function
-const createPipelineDataset = (pipelineName, data, orderOffset) => {
+// Update createPipelineDataset to accept pipelineId
+const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   const isNumber = selectedMetric.value === 'number';
   const metrics = isNumber 
     ? ['lost', 'open', 'won']
@@ -413,9 +410,11 @@ const createPipelineDataset = (pipelineName, data, orderOffset) => {
 
   return metrics.map((metric, index) => ({
     label: `${labels[index]} (${pipelineName})`,
-    data: Object.values(data).map(periodData => 
-      periodData[pipelineName.toLowerCase()]?.[metric] || 0
-    ),
+    data: Object.values(data).map(periodData => {
+      const value = periodData[pipelineId]?.[metric] || 0;
+      console.log(`Value for ${pipelineName} - ${metric}:`, value);
+      return value;
+    }),
     backgroundColor: colors[index],
     stack: pipelineName,
     borderRadius: index === 0 ? {

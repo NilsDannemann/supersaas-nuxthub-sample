@@ -1,5 +1,39 @@
 import { userActions } from "~~/server/services/db/UserActions";
 
+// Add helper function to fetch all pages
+async function fetchAllDeals(baseUrl: string, apiToken: string, queryParams: string[]) {
+  let allDeals = [];
+  let offset = 0;
+  const limit = 100; // Maximum allowed by ActiveCampaign
+  let hasMore = true;
+
+  while (hasMore) {
+    // Create URL for current page
+    const pageParams = [...queryParams];
+    pageParams.push(`limit=${limit}`);
+    pageParams.push(`offset=${offset}`);
+    const url = `${baseUrl}?${pageParams.join('&')}`;
+
+    // Fetch page
+    const response = await $fetch(url, {
+      method: 'GET',
+      headers: {
+        'Api-Token': apiToken,
+      },
+    });
+
+    // Add deals from this page
+    allDeals = allDeals.concat(response.deals || []);
+
+    // Check if there are more pages
+    const total = response.meta?.total || 0;
+    offset += limit;
+    hasMore = offset < total;
+  }
+
+  return allDeals;
+}
+
 export default defineEventHandler(async (event) => {
   const { user } = await requireUserSession(event);
 
@@ -11,9 +45,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const query = getQuery(event);
+  const all = query.all === 'true';
 
-  const limit = Number(query.limit) || 25;
-  const offset = Number(query.offset) || 0;
+  const limit = all ? undefined : (Number(query.limit) || 25);
+  const offset = all ? undefined : (Number(query.offset) || 0);
   const search = query.search as string || '';
   const status = query.status as string || '';
   const pipeline = query.pipeline as string || '';
@@ -30,44 +65,60 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    let url = `${apiKeys.activeCampaignAccountUrl}/api/3/deals?limit=${limit}&offset=${offset}`;
+    const baseUrl = `${apiKeys.activeCampaignAccountUrl}/api/3/deals`;
+    const queryParams = [];
     
-    // Add filters to the API call
+    // Add all query params except pagination
     if (search) {
-      url += `&search=${encodeURIComponent(search)}`;
+      queryParams.push(`search=${encodeURIComponent(search)}`);
     }
     if (status) {
-      url += `&filters[status]=${encodeURIComponent(status)}`;
+      queryParams.push(`filters[status]=${encodeURIComponent(status)}`);
     }
     if (pipeline) {
-      url += `&filters[group]=${encodeURIComponent(pipeline)}`;
+      queryParams.push(`filters[group]=${encodeURIComponent(pipeline)}`);
     }
-    
-    // Add date range filter
     if (dateRange) {
       const startDate = new Date(dateRange.start).toISOString();
       const endDate = new Date(dateRange.end).toISOString();
-      url += `&filters[created_after]=${encodeURIComponent(startDate)}`;
-      url += `&filters[created_before]=${encodeURIComponent(endDate)}`;
+      queryParams.push(`filters[created_after]=${encodeURIComponent(startDate)}`);
+      queryParams.push(`filters[created_before]=${encodeURIComponent(endDate)}`);
     }
-
     if (sort) {
-      url += `&orders[${sort.replace('-', '')}]=${sort.startsWith('-') ? 'DESC' : 'ASC'}`;
+      queryParams.push(`orders[${sort.replace('-', '')}]=${sort.startsWith('-') ? 'DESC' : 'ASC'}`);
     }
 
-    const response = await $fetch(url, {
-      method: 'GET',
-      headers: {
-        'Api-Token': apiKeys.activeCampaignAccountKey,
-      },
-    });
+    let deals;
+    let meta;
+
+    if (all) {
+      // Fetch all pages
+      deals = await fetchAllDeals(baseUrl, apiKeys.activeCampaignAccountKey, queryParams);
+      meta = { total: deals.length };
+    } else {
+      // Fetch single page with pagination
+      const paginatedParams = [...queryParams];
+      if (limit) paginatedParams.push(`limit=${limit}`);
+      if (offset) paginatedParams.push(`offset=${offset}`);
+      
+      const url = `${baseUrl}${paginatedParams.length ? '?' + paginatedParams.join('&') : ''}`;
+      const response = await $fetch(url, {
+        method: 'GET',
+        headers: {
+          'Api-Token': apiKeys.activeCampaignAccountKey,
+        },
+      });
+      
+      deals = response.deals;
+      meta = response.meta;
+    }
 
     const activeCampaignAccountUrl = apiKeys.activeCampaignAccountUrl;
     const baseUrlActiveCampaign = activeCampaignAccountUrl.replace(/^https?:\/\//, '').split('.')[0];
 
     return {
-      deals: response.deals,
-      meta: response.meta,
+      deals,
+      meta,
       baseUrlActiveCampaign,
     };
   } catch (error) {
