@@ -285,8 +285,18 @@ const getPeriods = (timeframe, date) => {
       let weekNumber = 1;
       
       while (currentDate <= monthEnd) {
-        const periodKey = `Week ${weekNumber}`;
+        const weekEnd = new Date(currentDate);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        // Format the date range
+        const startDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(currentDate);
+        const endDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(
+          weekEnd > monthEnd ? monthEnd : weekEnd
+        );
+        
+        const periodKey = `Week ${weekNumber} (${startDay}-${endDay})`;
         periods.push(periodKey);
+        
         currentDate.setDate(currentDate.getDate() + 7);
         weekNumber++;
       }
@@ -310,7 +320,18 @@ const getPeriodKey = (date, timeframe) => {
       // Calculate week number within the month
       const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
       const weekNumber = Math.ceil((date.getDate() + monthStart.getDay()) / 7);
-      const periodKey = `Week ${weekNumber}`;
+      
+      // Calculate the start and end days for this week
+      const weekStart = new Date(monthStart);
+      weekStart.setDate(weekStart.getDate() + (weekNumber - 1) * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      
+      // Format the date range
+      const startDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(weekStart);
+      const endDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(weekEnd);
+      
+      const periodKey = `Week ${weekNumber} (${startDay}-${endDay})`;
       console.log('Deal date:', date, 'Period key:', periodKey);
       return periodKey;
     case 'weekly':
