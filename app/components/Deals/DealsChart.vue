@@ -443,7 +443,7 @@ const chartData = computed(() => {
   }
 });
 
-// Update createPipelineDataset to accept pipelineId
+// Update createPipelineDataset to correctly handle rounded corners
 const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   const isNumber = selectedMetric.value === 'number';
   const metrics = isNumber 
@@ -453,20 +453,37 @@ const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   const colors = ['#BAE6FD', '#38BDF8', '#0EA5E9'];
   const labels = ['Lost', 'Open', 'Won'];
 
+  // Find the first non-zero metric for each period (starting from the top)
+  const firstNonZeroMetrics = Object.values(data).map(periodData => {
+    const pipelineData = periodData[pipelineId] || {};
+    // Start from index 0 (top of the stack)
+    for (let i = 0; i < metrics.length; i++) {
+      if (pipelineData[metrics[i]] > 0) {
+        return metrics[i];
+      }
+    }
+    return metrics[0]; // Default to first metric if all are zero
+  });
+
   return metrics.map((metric, index) => ({
     label: `${labels[index]} (${pipelineName})`,
-    data: Object.values(data).map(periodData => {
+    data: Object.values(data).map((periodData, periodIndex) => {
       const value = periodData[pipelineId]?.[metric] || 0;
-      console.log(`Value for ${pipelineName} - ${metric}:`, value);
       return value;
     }),
     backgroundColor: colors[index],
     stack: pipelineName,
-    borderRadius: index === 0 ? {
-      topLeft: 4,
-      topRight: 4
-    } : undefined,
     borderSkipped: false,
+    // Apply borderRadius only if this metric is the first non-zero value for its period
+    borderRadius: Object.values(data).map((_, periodIndex) => {
+      const isFirstNonZero = firstNonZeroMetrics[periodIndex] === metric;
+      return isFirstNonZero ? {
+        topLeft: 4,
+        topRight: 4,
+        bottomLeft: 0,
+        bottomRight: 0
+      } : 0;
+    }),
     order: orderOffset + (2 - index)
   }));
 };
