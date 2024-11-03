@@ -110,6 +110,7 @@ const selectedMetric = ref('number');
 const selectedTimeFrame = ref('yearly');
 const currentDate = ref(new Date());
 const isLoading = ref(false);
+const timeframeMaxValue = ref(0);
 
 const metricOptions = [
   { label: 'Number', value: 'number' },
@@ -449,40 +450,33 @@ const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   }));
 };
 
-// Add a ref to store the global maximum value
-const globalMaxValue = ref(0);
-
-// Update findMaxValue to add a small padding
+// Update findMaxValue to maintain consistent scale within timeframes
 const findMaxValue = (data) => {
-  let periodMaxValue = 0;
+  let currentMaxValue = 0;
   
   Object.values(data).forEach(periodData => {
     Object.values(periodData).forEach(pipelineData => {
       if (selectedMetric.value === 'number') {
-        // For number metric, sum up the stacked values
         const total = pipelineData.won + pipelineData.lost + pipelineData.open;
-        periodMaxValue = Math.max(periodMaxValue, total);
+        currentMaxValue = Math.max(currentMaxValue, total);
       } else {
-        // For value metric, sum up the stacked values
         const total = pipelineData.valueWon + pipelineData.valueLost + pipelineData.valueOpen;
-        periodMaxValue = Math.max(periodMaxValue, total);
+        currentMaxValue = Math.max(currentMaxValue, total);
       }
     });
   });
 
-  // Update global maximum if current period has higher value
-  globalMaxValue.value = Math.max(globalMaxValue.value, periodMaxValue);
+  // Add 10% padding
+  currentMaxValue = Math.ceil(currentMaxValue * 1.1);
   
-  // Add 10% padding to the maximum for visual comfort
-  return Math.ceil(globalMaxValue.value * 1.1);
+  // Update timeframeMaxValue if current value is higher
+  timeframeMaxValue.value = Math.max(timeframeMaxValue.value, currentMaxValue);
+  
+  // Return the highest value seen in this timeframe
+  return timeframeMaxValue.value;
 };
 
-// Reset global maximum when metric type changes
-watch(selectedMetric, () => {
-  globalMaxValue.value = 0;
-});
-
-// Update chartOptions to use fixed max
+// Update chartOptions to use the new findMaxValue
 const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -639,5 +633,11 @@ const currentPeriodLabel = computed(() => {
 // Watch loading prop
 watch(() => props.loading, (newValue) => {
   isLoading.value = newValue;
+});
+
+// Add a watcher for timeframe changes
+watch(selectedTimeFrame, () => {
+  // Reset max value when timeframe type changes
+  timeframeMaxValue.value = 0;
 });
 </script>
