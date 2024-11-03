@@ -81,15 +81,43 @@
         color="primary"
         label="Generate View"
         icon="i-heroicons-squares-2x2"
-        @click="generateView"
+        @click="showGenerateView = true"
       />
     </div>
+
+    <!-- Generate View Modal -->
+    <AppLargeModal
+      v-model="showGenerateView"
+      title="Generate Custom View"
+    >
+      <div class="text-gray-600 dark:text-gray-400">
+        Custom view generation content will go here.
+      </div>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton
+            color="gray"
+            variant="soft"
+            label="Cancel"
+            @click="showGenerateView = false"
+          />
+          <UButton
+            color="primary"
+            label="Generate"
+            :loading="generating"
+            @click="handleGenerate"
+          />
+        </div>
+      </template>
+    </AppLargeModal>
   </div>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { sub, format, isSameDay } from 'date-fns';
+import AppLargeModal from '~/components/App/LargeModal.vue';
 
 const DEFAULT_DURATION = { days: 14 };
 
@@ -242,10 +270,20 @@ function handleDateSelection(date) {
   };
 }
 
-// Add new function for view generation (placeholder for now)
-const generateView = () => {
-  // This will be implemented later
-  console.log('Generate view clicked');
+const showGenerateView = ref(false);
+const generating = ref(false);
+
+const handleGenerate = async () => {
+  generating.value = true;
+  try {
+    // Generate view logic will go here
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated delay
+    showGenerateView.value = false;
+  } catch (error) {
+    console.error('Error generating view:', error);
+  } finally {
+    generating.value = false;
+  }
 };
 </script>
 
