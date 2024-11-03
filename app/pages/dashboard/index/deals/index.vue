@@ -54,9 +54,9 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import DealsFilter from '~/components/Deals/DealsFilter.vue';
-import DealsTable from '~/components/Deals/DealsTable.vue';
-import DealsChart from '~/components/Deals/DealsChart.vue';
+import DealsFilter from '~/components/Deals/Filter.vue';
+import DealsTable from '~/components/Deals/Table.vue';
+import DealsChart from '~/components/Deals/DataViews/Chart.vue';
 
 const { data: pipelinesData, pending: pipelinesLoading } = await useFetch('/api/deals/pipelines', {
   lazy: true,
