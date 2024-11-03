@@ -91,12 +91,6 @@
       title="Generate Custom View"
     >
       <div class="flex flex-col h-full max-w-3xl mx-auto">
-        <!-- Top section with description -->
-        <div class="text-center mb-8">
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white">Visualize Your Data</h3>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Choose how you want to analyze and present your deal information</p>
-        </div>
-
         <!-- Stacked options -->
         <div class="space-y-4">
           <!-- Chart View -->
@@ -132,7 +126,9 @@
               <div class="flex-grow">
                 <div class="flex items-center gap-2">
                   <h3 class="text-base font-semibold text-gray-900 dark:text-white">Table View</h3>
-                  <span class="text-xs font-medium text-gray-400">(Coming Soon)</span>
+                  <span class="inline-flex items-center font-medium text-xs px-1.5 py-0.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 flex-shrink-0 rounded">
+                    Coming Soon
+                  </span>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400">View and manage your deals in a customizable table format.</p>
               </div>
@@ -150,7 +146,9 @@
               <div class="flex-grow">
                 <div class="flex items-center gap-2">
                   <h3 class="text-base font-semibold text-gray-900 dark:text-white">Graph View</h3>
-                  <span class="text-xs font-medium text-gray-400">(Coming Soon)</span>
+                  <span class="inline-flex items-center font-medium text-xs px-1.5 py-0.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 flex-shrink-0 rounded">
+                    Coming Soon
+                  </span>
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Explore relationships between deals in an interactive graph.</p>
               </div>
