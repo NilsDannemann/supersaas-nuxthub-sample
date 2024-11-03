@@ -31,13 +31,8 @@
       </div>
 
       <!-- Content -->
-      <div class="flex-1 overflow-auto p-4">
+      <div class="flex-1 overflow-auto p-6">
         <slot />
-      </div>
-
-      <!-- Optional Footer -->
-      <div v-if="$slots.footer" class="p-4 border-t border-gray-200 dark:border-gray-800">
-        <slot name="footer" />
       </div>
     </div>
   </UModal>
