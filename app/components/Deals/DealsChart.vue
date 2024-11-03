@@ -450,38 +450,57 @@ const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   }));
 };
 
-// Update findMaxValue to round to nice step values
-const findMaxValue = (data) => {
-  let currentMaxValue = 0;
+// Update watchers for data changes and timeframe changes
+watch(() => props.deals, () => {
+  // Reset to yearly view and current year when data changes
+  selectedTimeFrame.value = 'yearly';
+  currentDate.value = new Date();
+  // Calculate new max value immediately
+  timeframeMaxValue.value = findMaxValueForTimeframe(props.deals, 'yearly');
+}, { deep: true });
+
+watch(selectedTimeFrame, (newTimeframe) => {
+  // Calculate new max value for the new timeframe type
+  timeframeMaxValue.value = findMaxValueForTimeframe(props.deals, newTimeframe);
+});
+
+// Simplify findMaxValueForTimeframe to use existing aggregateDeals
+const findMaxValueForTimeframe = (deals, timeframe) => {
+  let maxValue = 0;
   
-  Object.values(data).forEach(periodData => {
+  // Use existing aggregateDeals function to get the data
+  const aggregatedData = aggregateDeals(deals, timeframe, currentDate.value);
+  
+  // Find max value across all periods
+  Object.values(aggregatedData).forEach(periodData => {
     Object.values(periodData).forEach(pipelineData => {
       if (selectedMetric.value === 'number') {
         const total = pipelineData.won + pipelineData.lost + pipelineData.open;
-        currentMaxValue = Math.max(currentMaxValue, total);
+        maxValue = Math.max(maxValue, total);
       } else {
         const total = pipelineData.valueWon + pipelineData.valueLost + pipelineData.valueOpen;
-        currentMaxValue = Math.max(currentMaxValue, total);
+        maxValue = Math.max(maxValue, total);
       }
     });
   });
 
-  // Find appropriate step size based on the magnitude of the value
-  const magnitude = Math.floor(Math.log10(currentMaxValue));
+  // Round up to nice number
+  if (maxValue === 0) return 10;
+  const magnitude = Math.floor(Math.log10(maxValue));
   const baseStep = Math.pow(10, magnitude);
-  const step = baseStep * (currentMaxValue / baseStep <= 5 ? 1 : 2);
-  
-  // Round up to the next step
-  const roundedMax = Math.ceil(currentMaxValue / step) * step;
-  
-  // Update timeframeMaxValue if current value is higher
-  timeframeMaxValue.value = Math.max(timeframeMaxValue.value, roundedMax);
-  
-  // Return the highest value seen in this timeframe
+  const step = baseStep * (maxValue / baseStep <= 5 ? 1 : 2);
+  return Math.ceil(maxValue / step) * step;
+};
+
+// Keep findMaxValue simple
+const findMaxValue = () => {
+  if (timeframeMaxValue.value === 0) {
+    timeframeMaxValue.value = findMaxValueForTimeframe(props.deals, selectedTimeFrame.value);
+  }
   return timeframeMaxValue.value;
 };
 
-// Update chartOptions to use the new findMaxValue
+// Update chartOptions to use simplified findMaxValue
 const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -521,7 +540,7 @@ const chartOptions = computed(() => ({
     y: {
       stacked: true,
       beginAtZero: true,
-      max: findMaxValue(aggregateDeals(props.deals, selectedTimeFrame.value, currentDate.value)),
+      max: findMaxValue(),
       ticks: {
         callback: (value) => {
           if (selectedMetric.value === 'value') {
@@ -638,11 +657,5 @@ const currentPeriodLabel = computed(() => {
 // Watch loading prop
 watch(() => props.loading, (newValue) => {
   isLoading.value = newValue;
-});
-
-// Add a watcher for timeframe changes
-watch(selectedTimeFrame, () => {
-  // Reset max value when timeframe type changes
-  timeframeMaxValue.value = 0;
 });
 </script>
