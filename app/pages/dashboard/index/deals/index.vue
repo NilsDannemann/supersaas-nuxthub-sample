@@ -3,9 +3,14 @@
     <template #description>
       <div class="flex items-center gap-4">
         <span>{{ totalItems }} Deals</span>
-        <span v-for="(value, currency) in totalDealValues" :key="currency">
-          {{ formatCurrency(value, currency) }}
-        </span>
+        <template v-if="dealsLoading">
+          <USkeleton class="h-5 w-24" />
+        </template>
+        <template v-else>
+          <span v-for="(value, currency) in totalDealValues" :key="currency">
+            {{ formatCurrency(value, currency) }}
+          </span>
+        </template>
         <span class="text-gray-300 dark:text-gray-600">|</span>
         <UTooltip 
           :ui="{ 
