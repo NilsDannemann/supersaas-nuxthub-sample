@@ -1,75 +1,88 @@
 <template>
-  <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2 flex-grow">
-        <USelect v-model="selectedStatus" :options="statusOptions" placeholder="Any Status" class="w-36" />
-        <USelect v-model="selectedPipeline" :options="pipelineOptions" placeholder="Any Pipeline" class="w-36" />
-        <UPopover :popper="{ placement: 'bottom-start' }">
-          <template #default="{ isOpen }">
-            <UButton 
-              icon="i-heroicons-calendar-20-solid" 
-              :trailing="true"
-              color="white" 
-              variant="solid"
-              class="w-48 justify-between font-normal [&>span:last-child]:text-gray-400 dark:[&>span:last-child]:text-gray-500"
-              :class="[
-                isOpen ? 'ring-2 ring-primary-500 dark:ring-primary-400' : '',
-                'relative'
-              ]"
-            >
-              <span 
+  <div class="flex gap-4">
+    <!-- Existing Filter Panel -->
+    <div class="flex-1 mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 flex-grow">
+          <USelect v-model="selectedStatus" :options="statusOptions" placeholder="Any Status" class="w-36" />
+          <USelect v-model="selectedPipeline" :options="pipelineOptions" placeholder="Any Pipeline" class="w-36" />
+          <UPopover :popper="{ placement: 'bottom-start' }">
+            <template #default="{ isOpen }">
+              <UButton 
+                icon="i-heroicons-calendar-20-solid" 
+                :trailing="true"
+                color="white" 
+                variant="solid"
+                class="w-48 justify-between font-normal [&>span:last-child]:text-gray-400 dark:[&>span:last-child]:text-gray-500"
                 :class="[
-                  { 'text-gray-400 dark:text-gray-500': !selected.start },
-                  'truncate max-w-[160px] block'
+                  isOpen ? 'ring-2 ring-primary-500 dark:ring-primary-400' : '',
+                  'relative'
                 ]"
               >
-                {{ selected.start 
-                  ? `${format(selected.start, 'd MMM, yyyy')} - ${format(selected.end, 'd MMM, yyyy')}` 
-                  : 'Any Date' 
-                }}
-              </span>
-            </UButton>
-          </template>
+                <span 
+                  :class="[
+                    { 'text-gray-400 dark:text-gray-500': !selected.start },
+                    'truncate max-w-[160px] block'
+                  ]"
+                >
+                  {{ selected.start 
+                    ? `${format(selected.start, 'd MMM, yyyy')} - ${format(selected.end, 'd MMM, yyyy')}` 
+                    : 'Any Date' 
+                  }}
+                </span>
+              </UButton>
+            </template>
 
-          <template #panel="{ close }">
-            <div class="flex items-center sm:divide-x divide-gray-200 dark:divide-gray-800">
-              <div class="hidden sm:flex flex-col py-4">
-                <UButton 
-                  v-for="(range, index) in ranges" 
-                  :key="index" 
-                  :label="range.label" 
-                  color="gray" 
-                  variant="ghost"
-                  class="rounded-none px-6"
-                  :class="[isRangeSelected(range.duration) ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50']"
-                  truncate 
-                  @click="() => {
-                    selectRange(range.duration);
-                    close();
-                  }" 
-                />
+            <template #panel="{ close }">
+              <div class="flex items-center sm:divide-x divide-gray-200 dark:divide-gray-800">
+                <div class="hidden sm:flex flex-col py-4">
+                  <UButton 
+                    v-for="(range, index) in ranges" 
+                    :key="index" 
+                    :label="range.label" 
+                    color="gray" 
+                    variant="ghost"
+                    class="rounded-none px-6"
+                    :class="[isRangeSelected(range.duration) ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50']"
+                    truncate 
+                    @click="() => {
+                      selectRange(range.duration);
+                      close();
+                    }" 
+                  />
+                </div>
+                <DatePicker v-model="selected" @close="close" @handle-date-selection="handleDateSelection" />
               </div>
-              <DatePicker v-model="selected" @close="close" @handle-date-selection="handleDateSelection" />
-            </div>
-          </template>
-        </UPopover>
-        <div class="flex items-center flex-grow space-x-2">
-          <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search" trailing
-            @keyup.enter="handleEnterKey" />
-          <UBadge v-if="activeSearch" color="black" variant="solid" size="lg" class="flex items-center pl-3">
-            <span>Search: "{{ activeSearch }}"</span>
-            <UButton color="white" variant="link" icon="i-heroicons-x-mark-20-solid" size="xs" class="ml-2 !p-0"
-              @click="removeSearchChip" />
-          </UBadge>
+            </template>
+          </UPopover>
+          <div class="flex items-center flex-grow space-x-2">
+            <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Search" trailing
+              @keyup.enter="handleEnterKey" />
+            <UBadge v-if="activeSearch" color="black" variant="solid" size="lg" class="flex items-center pl-3">
+              <span>Search: "{{ activeSearch }}"</span>
+              <UButton color="white" variant="link" icon="i-heroicons-x-mark-20-solid" size="xs" class="ml-2 !p-0"
+                @click="removeSearchChip" />
+            </UBadge>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <span v-if="hasActiveFilters" class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400"
+            @click="resetFilters">
+            Reset Filters
+          </span>
+          <UButton color="primary" label="Filter Data" @click="applyFilters" />
         </div>
       </div>
-      <div class="flex items-center gap-4">
-        <span v-if="hasActiveFilters" class="text-sm underline cursor-pointer text-gray-500 dark:text-gray-400"
-          @click="resetFilters">
-          Reset Filters
-        </span>
-        <UButton color="primary" label="Filter Data" @click="applyFilters" />
-      </div>
+    </div>
+
+    <!-- New View Generation Panel -->
+    <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center">
+      <UButton
+        color="primary"
+        label="Generate View"
+        icon="i-heroicons-squares-2x2"
+        @click="generateView"
+      />
     </div>
   </div>
 </template>
@@ -228,5 +241,11 @@ function handleDateSelection(date) {
     end: new Date(new Date(date).setHours(23, 59, 59, 999)) // End of the day
   };
 }
+
+// Add new function for view generation (placeholder for now)
+const generateView = () => {
+  // This will be implemented later
+  console.log('Generate view clicked');
+};
 </script>
 
