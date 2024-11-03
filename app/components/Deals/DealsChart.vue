@@ -450,7 +450,7 @@ const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   }));
 };
 
-// Update findMaxValue to maintain consistent scale within timeframes
+// Update findMaxValue to round to nice step values
 const findMaxValue = (data) => {
   let currentMaxValue = 0;
   
@@ -466,11 +466,16 @@ const findMaxValue = (data) => {
     });
   });
 
-  // Add 10% padding
-  currentMaxValue = Math.ceil(currentMaxValue * 1.1);
+  // Find appropriate step size based on the magnitude of the value
+  const magnitude = Math.floor(Math.log10(currentMaxValue));
+  const baseStep = Math.pow(10, magnitude);
+  const step = baseStep * (currentMaxValue / baseStep <= 5 ? 1 : 2);
+  
+  // Round up to the next step
+  const roundedMax = Math.ceil(currentMaxValue / step) * step;
   
   // Update timeframeMaxValue if current value is higher
-  timeframeMaxValue.value = Math.max(timeframeMaxValue.value, currentMaxValue);
+  timeframeMaxValue.value = Math.max(timeframeMaxValue.value, roundedMax);
   
   // Return the highest value seen in this timeframe
   return timeframeMaxValue.value;
