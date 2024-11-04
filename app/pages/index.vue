@@ -1,7 +1,10 @@
 <template>
   <UContainer class="py-8">
     <div class="flex items-center gap-4 justify-between p-2">
-      <div class="ml-2 font-semibold">Supersaas</div>
+      <div class="flex items-center gap-2 font-semibold">
+        <img src="/logo.png" class="h-6 w-auto" />
+        <span>Data/Prism</span>
+      </div>
       <span class="flex-1" />
       <UButton color="black" :to="loggedIn ? '/dashboard' : '/auth/login'">
         {{ loggedIn ? "Dashboard" : "Login" }}
