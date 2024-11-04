@@ -15,8 +15,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import PipelinesFilter from '~/components/Deals/PipelinesFilter.vue';
-import PipelinesTable from '~/components/Deals/PipelinesTable.vue';
+import PipelinesFilter from '~/components/Pipelines/Filter.vue';
+import PipelinesTable from '~/components/Pipelines/Table.vue';
 
 const pipelines = ref([]);
 const pipelinesLoading = ref(true);

@@ -3,9 +3,14 @@
     <template #description>
       <div class="flex items-center gap-4">
         <span>{{ totalItems }} Deals</span>
-        <span v-for="(value, currency) in totalDealValues" :key="currency">
-          {{ formatCurrency(value, currency) }}
-        </span>
+        <template v-if="dealsLoading">
+          <USkeleton class="h-5 w-24" />
+        </template>
+        <template v-else>
+          <span v-for="(value, currency) in totalDealValues" :key="currency">
+            {{ formatCurrency(value, currency) }}
+          </span>
+        </template>
         <span class="text-gray-300 dark:text-gray-600">|</span>
         <UTooltip 
           :ui="{ 
@@ -49,9 +54,9 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import DealsFilter from '~/components/Deals/DealsFilter.vue';
-import DealsTable from '~/components/Deals/DealsTable.vue';
-import DealsChart from '~/components/Deals/DealsChart.vue';
+import DealsFilter from '~/components/Deals/Filter.vue';
+import DealsTable from '~/components/Deals/Table.vue';
+import DealsChart from '~/components/Deals/DataViews/Chart.vue';
 
 const { data: pipelinesData, pending: pipelinesLoading } = await useFetch('/api/deals/pipelines', {
   lazy: true,

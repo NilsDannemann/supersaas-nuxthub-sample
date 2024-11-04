@@ -110,6 +110,7 @@ const selectedMetric = ref('number');
 const selectedTimeFrame = ref('yearly');
 const currentDate = ref(new Date());
 const isLoading = ref(false);
+const timeframeMaxValue = ref(0);
 
 const metricOptions = [
   { label: 'Number', value: 'number' },
@@ -284,8 +285,18 @@ const getPeriods = (timeframe, date) => {
       let weekNumber = 1;
       
       while (currentDate <= monthEnd) {
-        const periodKey = `Week ${weekNumber}`;
+        const weekEnd = new Date(currentDate);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        // Format the date range
+        const startDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(currentDate);
+        const endDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(
+          weekEnd > monthEnd ? monthEnd : weekEnd
+        );
+        
+        const periodKey = `Week ${weekNumber} (${startDay}-${endDay})`;
         periods.push(periodKey);
+        
         currentDate.setDate(currentDate.getDate() + 7);
         weekNumber++;
       }
@@ -309,7 +320,18 @@ const getPeriodKey = (date, timeframe) => {
       // Calculate week number within the month
       const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
       const weekNumber = Math.ceil((date.getDate() + monthStart.getDay()) / 7);
-      const periodKey = `Week ${weekNumber}`;
+      
+      // Calculate the start and end days for this week
+      const weekStart = new Date(monthStart);
+      weekStart.setDate(weekStart.getDate() + (weekNumber - 1) * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      
+      // Format the date range
+      const startDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(weekStart);
+      const endDay = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(weekEnd);
+      
+      const periodKey = `Week ${weekNumber} (${startDay}-${endDay})`;
       console.log('Deal date:', date, 'Period key:', periodKey);
       return periodKey;
     case 'weekly':
@@ -421,7 +443,7 @@ const chartData = computed(() => {
   }
 });
 
-// Update createPipelineDataset to accept pipelineId
+// Update createPipelineDataset to correctly handle rounded corners
 const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   const isNumber = selectedMetric.value === 'number';
   const metrics = isNumber 
@@ -431,58 +453,92 @@ const createPipelineDataset = (pipelineName, data, orderOffset, pipelineId) => {
   const colors = ['#BAE6FD', '#38BDF8', '#0EA5E9'];
   const labels = ['Lost', 'Open', 'Won'];
 
+  // Find the first non-zero metric for each period (starting from the top)
+  const firstNonZeroMetrics = Object.values(data).map(periodData => {
+    const pipelineData = periodData[pipelineId] || {};
+    // Start from index 0 (top of the stack)
+    for (let i = 0; i < metrics.length; i++) {
+      if (pipelineData[metrics[i]] > 0) {
+        return metrics[i];
+      }
+    }
+    return metrics[0]; // Default to first metric if all are zero
+  });
+
   return metrics.map((metric, index) => ({
     label: `${labels[index]} (${pipelineName})`,
-    data: Object.values(data).map(periodData => {
+    data: Object.values(data).map((periodData, periodIndex) => {
       const value = periodData[pipelineId]?.[metric] || 0;
-      console.log(`Value for ${pipelineName} - ${metric}:`, value);
       return value;
     }),
     backgroundColor: colors[index],
     stack: pipelineName,
-    borderRadius: index === 0 ? {
-      topLeft: 4,
-      topRight: 4
-    } : undefined,
     borderSkipped: false,
+    // Apply borderRadius only if this metric is the first non-zero value for its period
+    borderRadius: Object.values(data).map((_, periodIndex) => {
+      const isFirstNonZero = firstNonZeroMetrics[periodIndex] === metric;
+      return isFirstNonZero ? {
+        topLeft: 4,
+        topRight: 4,
+        bottomLeft: 0,
+        bottomRight: 0
+      } : 0;
+    }),
     order: orderOffset + (2 - index)
   }));
 };
 
-// Add a ref to store the global maximum value
-const globalMaxValue = ref(0);
+// Update watchers for data changes and timeframe changes
+watch(() => props.deals, () => {
+  // Reset to yearly view and current year when data changes
+  selectedTimeFrame.value = 'yearly';
+  currentDate.value = new Date();
+  // Calculate new max value immediately
+  timeframeMaxValue.value = findMaxValueForTimeframe(props.deals, 'yearly');
+}, { deep: true });
 
-// Update findMaxValue to add a small padding
-const findMaxValue = (data) => {
-  let periodMaxValue = 0;
+watch(selectedTimeFrame, (newTimeframe) => {
+  // Calculate new max value for the new timeframe type
+  timeframeMaxValue.value = findMaxValueForTimeframe(props.deals, newTimeframe);
+});
+
+// Simplify findMaxValueForTimeframe to use existing aggregateDeals
+const findMaxValueForTimeframe = (deals, timeframe) => {
+  let maxValue = 0;
   
-  Object.values(data).forEach(periodData => {
+  // Use existing aggregateDeals function to get the data
+  const aggregatedData = aggregateDeals(deals, timeframe, currentDate.value);
+  
+  // Find max value across all periods
+  Object.values(aggregatedData).forEach(periodData => {
     Object.values(periodData).forEach(pipelineData => {
       if (selectedMetric.value === 'number') {
-        // For number metric, sum up the stacked values
         const total = pipelineData.won + pipelineData.lost + pipelineData.open;
-        periodMaxValue = Math.max(periodMaxValue, total);
+        maxValue = Math.max(maxValue, total);
       } else {
-        // For value metric, sum up the stacked values
         const total = pipelineData.valueWon + pipelineData.valueLost + pipelineData.valueOpen;
-        periodMaxValue = Math.max(periodMaxValue, total);
+        maxValue = Math.max(maxValue, total);
       }
     });
   });
 
-  // Update global maximum if current period has higher value
-  globalMaxValue.value = Math.max(globalMaxValue.value, periodMaxValue);
-  
-  // Add 10% padding to the maximum for visual comfort
-  return Math.ceil(globalMaxValue.value * 1.1);
+  // Round up to nice number
+  if (maxValue === 0) return 10;
+  const magnitude = Math.floor(Math.log10(maxValue));
+  const baseStep = Math.pow(10, magnitude);
+  const step = baseStep * (maxValue / baseStep <= 5 ? 1 : 2);
+  return Math.ceil(maxValue / step) * step;
 };
 
-// Reset global maximum when metric type changes
-watch(selectedMetric, () => {
-  globalMaxValue.value = 0;
-});
+// Keep findMaxValue simple
+const findMaxValue = () => {
+  if (timeframeMaxValue.value === 0) {
+    timeframeMaxValue.value = findMaxValueForTimeframe(props.deals, selectedTimeFrame.value);
+  }
+  return timeframeMaxValue.value;
+};
 
-// Update chartOptions to use fixed max
+// Update chartOptions to use simplified findMaxValue
 const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
@@ -522,7 +578,7 @@ const chartOptions = computed(() => ({
     y: {
       stacked: true,
       beginAtZero: true,
-      max: findMaxValue(aggregateDeals(props.deals, selectedTimeFrame.value, currentDate.value)),
+      max: findMaxValue(),
       ticks: {
         callback: (value) => {
           if (selectedMetric.value === 'value') {
