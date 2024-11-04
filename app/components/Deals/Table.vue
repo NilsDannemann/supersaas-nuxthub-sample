@@ -154,24 +154,15 @@ const getStatusLabel = (status) => {
 };
 
 const getContactUrl = (contactId) => {
-  return {
-    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/contacts/${contactId}`,
-    class: 'text-gray-900 dark:text-white hover:underline'
-  };
+  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/contacts/${contactId}`;
 };
 
 const getDealUrl = (dealId) => {
-  return {
-    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals/${dealId}`,
-    class: 'text-gray-900 dark:text-white hover:underline'
-  };
+  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals/${dealId}`;
 };
 
 const getPipelineUrl = (pipelineId) => {
-  return {
-    href: `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`,
-    class: 'text-gray-900 dark:text-white hover:underline'
-  };
+  return `https://${props.baseUrlActiveCampaign}.activehosted.com/app/deals?pipeline=${pipelineId}`;
 };
 
 const paginationUI = {
