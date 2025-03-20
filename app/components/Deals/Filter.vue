@@ -70,7 +70,11 @@
             @click="resetFilters">
             Reset Filters
           </span>
-          <UButton color="primary" label="Filter Data" @click="applyFilters" />
+          <UButton 
+            label="Filter Data" 
+            color="black"
+            @click="applyFilters"
+          />
         </div>
       </div>
     </div>
@@ -78,7 +82,7 @@
     <!-- New View Generation Panel -->
     <div class="mb-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center">
       <UButton
-        color="primary"
+        color="black"
         label="Generate View"
         icon="i-heroicons-squares-2x2"
         @click="showGenerateView = true"

@@ -81,6 +81,12 @@ const links = [
     click: () => (mobileSidebar.value = false),
   },
   {
+    label: "Key Data",
+    icon: "i-ph-key-duotone",
+    to: "/dashboard/key-data",
+    click: () => (mobileSidebar.value = false),
+  },
+  {
     label: "Deals",
     icon: "i-ph-chart-bar-duotone",
     to: "/dashboard/deals",
